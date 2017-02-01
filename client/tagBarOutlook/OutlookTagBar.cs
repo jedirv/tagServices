@@ -153,7 +153,7 @@ namespace OutlookTagBar
         }
         private void AddMenusToButtonFromBackend(Button b)
         {
-            String json = Backend.GetJsonFromBackend("tagapi/docs/tagx");
+            String json = Backend.GetJsonFromBackend("tagapi/docsForTag/" + b.Text);
             AddMenusFromJson(b,json);
         }
         

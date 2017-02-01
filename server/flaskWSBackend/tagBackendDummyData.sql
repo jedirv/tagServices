@@ -58,6 +58,7 @@ SELECT Email.ID from Email WHERE Email.EntryID=x
 then get the
 SELECT Tags.Name FROM Tags INNER Join EmailTags on EmailTags.tagID=Tags.ID WHERE EmailID=y
 */
+
 /*
 select all the most recent resources that are associated with this tag 
 

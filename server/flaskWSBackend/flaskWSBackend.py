@@ -1,3 +1,6 @@
+#FLASK_APP=flaskWSBackend.py
+#FLASK_DEBUG=1
+
 from flask import Flask
 from flask import jsonify
 import sqlite3
@@ -15,11 +18,9 @@ def hello_world():
 @app.route('/tagapi/tagsForEmail/<entryID>')
 def get_tags_for_email(entryID):
     query = "SELECT Email.ID from Email WHERE Email.EntryID='{0}';".format(entryID)
-    print(query)
     all_rows = query_db(query)
     row = all_rows[0]
     emailID = row['ID']
-    print("emailID was {0}".format(emailID))
     query = "SELECT Tags.Name FROM Tags INNER Join EmailTags on EmailTags.tagID=Tags.ID WHERE EmailID='{0}';".format(emailID)
     tagList = []
     for tag_row in query_db(query):
@@ -32,7 +33,57 @@ def get_tags_for_email(entryID):
     response = jsonify(result)
     return response
     #'{\"Tags\":[{\"Name\":\"tag1\"},{\"Name\":\"tag2\"},{\"Name\":\"tag3\"}]}'
-   
+
+    
+def get_tag_ID_for_tagname(tagName):
+    query = "SELECT Tags.ID from Tags WHERE Tags.Name='{0}';".format(tagName)
+    all_rows = query_db(query)
+    return all_rows
+
+def get_doc_tree_for_tag_id(tagID):
+    print("tag was {0}".format(tagID))
+    mru_query = "SELECT Resources.Name FROM Resources INNER JOIN ResourceTags ON Resources.ID=ResourceTags.ResourceID WHERE Resources.Type='FILE' AND ResourceTags.TagID='{0}' ORDER BY Resources.LastUse DESC LIMIT 2;".format(tagID)
+    mruDocList = []
+    for doc_row in query_db(mru_query):
+        doc = doc_row['Name']
+        docDict = { "Name" : doc }
+        mruDocList.append(docDict)
+    
+    rel_query = "SELECT Resources.Name FROM Resources INNER JOIN ResourceTags ON Resources.ID=ResourceTags.ResourceID WHERE Resources.Type='FILE' AND ResourceTags.TagID='{0}' ORDER BY Resources.Name;".format(tagID)
+    relDocList = []
+    for doc_row in query_db(rel_query):
+        doc = doc_row['Name']
+        docDict = { "Name" : doc }
+        relDocList.append(docDict)
+    result = {}
+    result["RelevantDocuments"] = relDocList
+    result["MruDocuments"] =  mruDocList
+    response = jsonify(result);
+    return response
+
+    
+def get_empty_doc_tree():
+    mruDocList = []
+    relDocList = []
+    result = {}
+    result["RelevantDocuments"] = relDocList
+    result["MruDocuments"] =  mruDocList
+    response = jsonify(result);
+    return response
+    
+@app.route('/tagapi/docsForTag/<tagName>')
+def get_docs_for_tag(tagName):
+    all_rows = get_tag_ID_for_tagname(tagName)
+    print(all_rows)
+    if (all_rows):
+        row = all_rows[0]
+        tagID = row['ID']
+        return get_doc_tree_for_tag_id(tagID)
+    else:
+        return get_empty_doc_tree()
+    print(all_rows)
+    
+    
 
     
 @app.route('/tagapi/foo/<treename>')
