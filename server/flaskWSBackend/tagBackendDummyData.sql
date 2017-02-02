@@ -38,22 +38,22 @@ INSERT INTO ResourceTags VALUES(4, 5, 3);
 INSERT INTO ResourceTags VALUES(5, 6, 3);
 INSERT INTO ResourceTags VALUES(6, 2, 2);
 INSERT INTO ResourceTags VALUES(7, 7, 2);
-INSERT INTO Email VALUES(1, '00001', '0001');
-INSERT INTO Email VALUES(2, '00002', '0001');
-INSERT INTO Email VALUES(3, '00003', '0002');
-INSERT INTO Email VALUES(4, '00004', '0002');
-INSERT INTO Email VALUES(5, '00005', '0002');
-INSERT INTO Email VALUES(6, '00006', '0003');
-INSERT INTO Email VALUES(7, '00007', '0004');
-INSERT INTO Email VALUES(8, '00008', '0004');
-INSERT INTO Email VALUES(9, '00009', '0004');
+INSERT INTO Emails VALUES(1, '00001', '0001');
+INSERT INTO Emails VALUES(2, '00002', '0001');
+INSERT INTO Emails VALUES(3, '00003', '0002');
+INSERT INTO Emails VALUES(4, '00004', '0002');
+INSERT INTO Emails VALUES(5, '00005', '0002');
+INSERT INTO Emails VALUES(6, '00006', '0003');
+INSERT INTO Emails VALUES(7, '00007', '0004');
+INSERT INTO Emails VALUES(8, '00008', '0004');
+INSERT INTO Emails VALUES(9, '00009', '0004');
 INSERT INTO EmailTags VALUES(1, 1, 3);
 INSERT INTO EmailTags VALUES(2, 1, 5);
 INSERT INTO EmailTags VALUES(3, 1, 6);
 /*
-get the Email.ID that matches the entryID given
+get the Emails.ID that matches the entryID given
 
-SELECT Email.ID from Email WHERE Email.EntryID=x
+SELECT Emails.ID from Emails WHERE Emails.EntryID=x
 
 then get the
 SELECT Tags.Name FROM Tags INNER Join EmailTags on EmailTags.tagID=Tags.ID WHERE EmailID=y

@@ -14,6 +14,36 @@ app = Flask(__name__)
 def hello_world():
     return 'index page'
  
+
+@app.route('/tagapi/addTag/<tag>')
+def add_tag(tag):
+	all_rows = get_tag_ID_for_tagname(tag)
+	if (all_rows):
+	    return insert_rejected('tag {0} already exists'.format(tag))
+	else:
+		query = "INSERT INTO Tags (Name) VALUES ('{0}');".format(tag)
+		print(query)
+		return insert_and_get_id(query, 'Tags')
+
+def insert_and_get_id(insert_command, table):
+    print(insert_command)
+    all_rows = insert_db(insert_command)
+    query = "SELECT max(id) from {0};".format(table)
+    all_rows = query_db(query)
+    print(all_rows[0][0])
+    result = {}
+    result["LastInsertID"] = all_rows[0][0]
+    response = jsonify(result)
+    return response
+
+@app.route('/tagapi/addEmail/<conversationID>/<entryID>')
+def add_email(conversationID, entryID):
+    all_rows = get_email_ID_for_these(conversationID, entryID)
+    if (all_rows):
+        return insert_rejected('emails entry {0} already exists'.format(entryID))
+    else:
+        query = "INSERT INTO Emails (EntryID, ConversationID) VALUES ('{0}','{1}');".format(entryID, conversationID)
+        return insert_and_get_id(query, 'Emails')
   
 @app.route('/tagapi/tagsForEmail/<entryID>')
 def get_tags_for_email(entryID):
@@ -37,6 +67,12 @@ def get_tags_for_email(entryID):
     
 def get_tag_ID_for_tagname(tagName):
     query = "SELECT Tags.ID from Tags WHERE Tags.Name='{0}';".format(tagName)
+    all_rows = query_db(query)
+    return all_rows
+	
+
+def get_email_ID_for_these(conversationID, entryID):
+    query = "SELECT Emails.ID from Emails WHERE Emails.ConversationID='{0}' and Emails.EntryID='{1}';".format(conversationID, entryID)
     all_rows = query_db(query)
     return all_rows
 
@@ -91,7 +127,7 @@ def show_user_profile(treename):
     # show the user profile for that user
     return 'here is tree %s' % treename
 
-@app.route('/tagapi/docs/<tag>')
+@app.route('/tagapi/dummydocs/<tag>')
 def get_document_tree(tag):
     #'{\"RelevantDocuments\":[{\"Name\":\"docA1\"},{\"Name\":\"docA2\"},{\"Name\":\"docA3\"}],"MruDocuments":[{\"Name\":\"docA4\"},{\"Name\":\"docA5\"},{\"Name\":\"docA6\"}]}'
     doc1Dict = { "Name" : "docA1" }
@@ -132,6 +168,13 @@ def close_connection(exception):
         
 def query_db(query, args=()):
     cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return rv
+
+def insert_db(query, args=()):
+    cur = get_db().execute(query, args)
+    get_db().commit()
     rv = cur.fetchall()
     cur.close()
     return rv
