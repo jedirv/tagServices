@@ -67,6 +67,14 @@ def tag_email(entryID, tag):
         return emailTagTable.add_email_tag(entryID, tag)
         
 
+@app.route('/tagapi/tagResource/<type>/<name>/<tag>')
+def tag_resource(type, name, tag):
+    if resourceTagTable.is_resource_tag_in_db(type, name, tag):
+        return util.insert_rejected('resource {0} {1} already tagged with {2}'.format(type, name, tag))
+    else:
+        return resourceTagTable.add_resource_tag(type, name, tag)
+        
+
         
 @app.route('/tagapi/tagsForEmail/<entryID>')
 def get_tags_for_email(entryID):
