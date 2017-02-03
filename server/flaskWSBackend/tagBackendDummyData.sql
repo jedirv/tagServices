@@ -50,6 +50,7 @@ INSERT INTO Emails VALUES(9, '00009', '0004');
 INSERT INTO EmailTags VALUES(1, 1, 3);
 INSERT INTO EmailTags VALUES(2, 1, 5);
 INSERT INTO EmailTags VALUES(3, 1, 6);
+INSERT INTO PersonTags VALUES(1, 1, 3);
 /*
 get the Emails.ID that matches the entryID given
 

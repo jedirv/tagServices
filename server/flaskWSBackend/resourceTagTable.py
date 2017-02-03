@@ -1,8 +1,10 @@
 
 import sqlitedb as db
+from flask import jsonify
+import tagTable
 
 def get_docs_for_tag(tagName):
-    tagID = get_tag_ID_for_tagname(tagName)
+    tagID = tagTable.get_tag_id_for_tag(tagName)
     if (tagID=='?'):
 	    return get_empty_doc_tree()
     else:

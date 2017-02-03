@@ -1,20 +1,17 @@
 
 import sqlitedb as db
+import util
    
 def is_tag_in_db(tag):
-    tagID = tag.get_tag_ID_for_tagname(tag)
+    tagID = get_tag_id_for_tag(tag)
     if (tagID == '?'):
 	    return False
     return True
 
-def get_tag_ID_for_tagname(tagName):
-    query = "SELECT Tags.ID from Tags WHERE Tags.Name='{0}';".format(tagName)
+def get_tag_id_for_tag(tag):
+    query = "SELECT Tags.ID from Tags WHERE Tags.Name='{0}';".format(tag)
     all_rows = db.query_db(query)
-    tagID = '?'
-    if (all_rows):
-        row = all_rows[0]
-        tagID = row['ID']
-    return tagID
+    return util.get_id_from_rows(all_rows)
 
 def add_tag(tag):
     query = "INSERT INTO Tags (Name) VALUES ('{0}');".format(tag)

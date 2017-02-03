@@ -13,3 +13,9 @@ def insert_rejected(cause):
 def insert_succeeded(value):
 	return get_insert_response("LastInsertId", value)
 	
+def get_id_from_rows(all_rows):
+    id = '?'
+    if (all_rows):
+        row = all_rows[0]
+        id = row['ID']
+    return id

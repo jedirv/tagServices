@@ -1,4 +1,8 @@
 import sqlite3
+from flask import g
+import util
+
+DATABASE = 'tagBackend.db'
 
 
 def get_db():
@@ -28,6 +32,9 @@ def insert_and_get_id(insert_command, table):
     all_rows = insert_db(insert_command)
     query = "SELECT max(id) from {0};".format(table)
     all_rows = query_db(query)
-    return insert_succeeded(all_rows[0][0])
+    return util.insert_succeeded(all_rows[0][0])
 
-	
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()	
