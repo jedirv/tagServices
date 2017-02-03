@@ -2,6 +2,39 @@
 import sqlitedb as db
 from flask import jsonify
 import tagTable
+import resourceTable
+import util
+
+def is_resource_tag_in_db(type, name, tag):
+    print("resource is {0}, tag is {1}".format(name, tag))
+    resourceTagID = get_resource_tag_id(type, name, tag)
+    if (resourceTagID=='?'):
+        return False
+    return True
+
+def get_resource_tag_id(type, name, tag):
+    print("resource is {0}, tag is {1}".format(name, tag))
+    resourceID = resourceTable.get_resource_id(type, name)
+    tagID = tagTable.get_tag_id_for_tag(tag)
+    if (resourceID=='?' or tagID=='?'):
+        return '?'
+    query="SELECT ResourceTags.ID FROM ResourceTags WHERE ResourceID='{0}' and TagID='{1}'".format(resourceID, tagID)
+    
+    all_rows = db.query_db(query)
+    return util.get_id_from_rows(all_rows)
+
+def add_resource_tag(type, name, tag):
+    resourceID = resourceTable.get_resource_id(type, name)
+    print('resourceID is {0}'.format(resourceID))
+    tagID = tagTable.get_tag_id_for_tag(tag)
+    if (tagID=='?'):
+        return util.insert_rejected('tag {0} does not exist'.format(tag))
+    if (resourceID=='?'):
+        return util.insert_rejected('resource {0} {1} does not exist'.format(type, name))
+    print('tagID is {0}'.format(tagID))
+    query = "INSERT INTO ResourceTags (ResourceID, TagID) VALUES ('{0}','{1}');".format(resourceID, tagID)
+    return db.insert_and_get_id(query, 'ResourceTags')
+
 
 def get_docs_for_tag(tagName):
     tagID = tagTable.get_tag_id_for_tag(tagName)

@@ -27,10 +27,10 @@ http://127.0.0.1:5000/tagapi/tagEmail/00002/tag3
 http://127.0.0.1:5000/tagapi/tagEmail/00002/tag29
 
 DEMO
-http://127.0.0.1:5000/tagapi/tagResource/url/www.amazon.com/tag3  #already there
-http://127.0.0.1:5000/tagapi/tagResource/url/www.amazon.com/tag6  #should work
-http://127.0.0.1:5000/tagapi/tagResource/url/www.amazon.com/tag20 #fail with bad tag
-http://127.0.0.1:5000/tagapi/tagResource/url/www.amazon2.com/tag6 #fail with bad url
+http://127.0.0.1:5000/tagapi/tagResource/URL/www.amazon.com/tag3  #already there
+http://127.0.0.1:5000/tagapi/tagResource/URL/www.amazon.com/tag6  #should work
+http://127.0.0.1:5000/tagapi/tagResource/URL/www.amazon.com/tag20 #fail with bad tag
+http://127.0.0.1:5000/tagapi/tagResource/URL/www.amazon2.com/tag6 #fail with bad url
 
 DEMO
 http://127.0.0.1:5000/tagapi/tagsForEmail/00001

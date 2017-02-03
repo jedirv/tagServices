@@ -3,12 +3,12 @@ import sqlitedb as db
 import util
 
 def is_resource_in_db(type, name):
-    all_rows = get_resource_ID_for_these(type, name)
+    all_rows = get_resource_id(type, name)
     if (all_rows):
         return True
     return False
 	
-def get_resource_ID_for_these(type, name):
+def get_resource_id(type, name):
     query = "SELECT Resources.ID from Resources WHERE Resources.Type='{0}' and Resources.Name='{1}';".format(type, name)
     all_rows = db.query_db(query)
     return util.get_id_from_rows(all_rows)
