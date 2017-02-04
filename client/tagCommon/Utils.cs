@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace TagCommon
 {
@@ -28,6 +29,23 @@ namespace TagCommon
         {
             string output = JsonConvert.SerializeObject(obj);
             return output;
+        }
+        
+        public static String NormalizeName(String name)
+        {
+            if (name.Contains(", "))
+            {
+                int indexOfComma = name.IndexOf(',');
+                String lastName = name.Substring(0, indexOfComma);
+                String firstName = name.Substring(indexOfComma + 2, name.Length-(indexOfComma+2));
+                name = firstName + " " + lastName;
+            }
+            return name;
+        }
+
+        public static String URLEscapeString(String s)
+        {
+            return System.Net.WebUtility.UrlEncode(s);
         }
     }
 }

@@ -3,10 +3,10 @@ import sqlitedb as db
 import util
 
 def is_resource_in_db(type, name):
-    all_rows = get_resource_id(type, name)
-    if (all_rows):
-        return True
-    return False
+    id = get_resource_id(type, name)
+    if (id == '?'):
+        return False
+    return True
 	
 def get_resource_id(type, name):
     query = "SELECT Resources.ID from Resources WHERE Resources.Type='{0}' and Resources.Name='{1}';".format(type, name)

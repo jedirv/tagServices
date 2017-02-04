@@ -43,6 +43,8 @@ namespace OutlookTagBar
                 new Outlook.InspectorsEvents_NewInspectorEventHandler(
                 Inspectors_NewInspector);
 
+            currentExplorer = this.Application.ActiveExplorer();
+
             foreach (Outlook.Inspector inspector in inspectors)
             {
                 Inspectors_NewInspector(inspector);
@@ -72,23 +74,20 @@ namespace OutlookTagBar
 
             // explorer event
             currentExplorer = this.Application.ActiveExplorer();
-            currentExplorer.SelectionChange += new Outlook.ExplorerEvents_10_SelectionChangeEventHandler(CurrentExplorer_Event);
+            currentExplorer.SelectionChange += new Outlook.ExplorerEvents_10_SelectionChangeEventHandler(CurrentExplorer_SelectionChanged);
 
             // inspector event
             System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
-            inspectors = this.Application.Inspectors;
-            inspectors.NewInspector +=
-            new Microsoft.Office.Interop.Outlook.InspectorsEvents_NewInspectorEventHandler(Inspectors_NewInspector);
-            
-        
         }
-       
+ 
         void Inspectors_NewInspector(Microsoft.Office.Interop.Outlook.Inspector Inspector)
         {
+            // this only fires when we open a new window, not when we just single click on an email
             if (Inspector.CurrentItem is Outlook.MailItem)
             {
-                System.Diagnostics.Debug.Write("NewInspector event fired\n");
                 Outlook.MailItem mailItem = Inspector.CurrentItem as Outlook.MailItem;
+                System.Diagnostics.Debug.Write("NewInspector event fired for mailItem " + mailItem.Subject + " \n");
+                
                 if (inspectorWrappersValue.ContainsKey(Inspector))
                 {
                     System.Diagnostics.Debug.Write("SKIPPING REDUNDANT inspectorWRapper\n");
@@ -142,8 +141,8 @@ namespace OutlookTagBar
         }
         public static void ExpressTagButtonsFromBackend(OutlookTagBar tagBar, Outlook.MailItem mailItem)
         {
-            String entryID = "00001";
-            String json = TagCommon.Backend.GetJsonFromBackend("tagapi/tagsForEmail/" + entryID);
+            String entryID = mailItem.EntryID;
+            String json = TagCommon.Backend.TagsForEmail(entryID);
             TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
             List<TagName> tags = tagNames.Tags;
             foreach (TagName tag in tags)
@@ -151,7 +150,7 @@ namespace OutlookTagBar
                 tagBar.AddNewButton(tag.Name);
             }
         }
-        private void CurrentExplorer_Event()
+        private void CurrentExplorer_SelectionChanged()
         {
             try
             {
@@ -160,9 +159,18 @@ namespace OutlookTagBar
                     Object selObject = this.Application.ActiveExplorer().Selection[1];
                     if (selObject is Outlook.MailItem)
                     {
+
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
                         explorerTagBar.RemoveAllTagButtons();
                         ExpressTagButtonsFromBackend(explorerTagBar, mailItem);
+
+                        String senderName     = mailItem.Sender.Name;
+                        Backend.AddPerson(Utils.URLEscapeString(Utils.NormalizeName(senderName)));
+                        Backend.ShowPersons();
+                        String entryID = mailItem.EntryID;
+                        String conversationID = mailItem.ConversationID;
+                        Backend.AddEmail(entryID, conversationID);
+                        
                     }
                 }
             }

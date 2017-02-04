@@ -2,10 +2,10 @@ import sqlitedb as db
 import util
 
 def is_email_in_db(conversationID, entryID):
-    all_rows = get_email_id_for_these(conversationID, entryID)
-    if (all_rows):
-        return True
-    return False
+    id = get_email_id_for_these(conversationID, entryID)
+    if (id == '?'):
+        return False
+    return True
 	
 def get_email_id_for_these(conversationID, entryID):
     query = "SELECT Emails.ID from Emails WHERE Emails.ConversationID='{0}' and Emails.EntryID='{1}';".format(conversationID, entryID)
