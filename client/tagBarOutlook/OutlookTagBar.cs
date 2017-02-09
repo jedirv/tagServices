@@ -138,8 +138,12 @@ namespace OutlookTagBar
                 pdfItem.DropDownItems.Add(item);
                 AttachOpenAndAttachMenusToDocName(item, di.Name);
             }
-            ToolStripSeparator sep = new ToolStripSeparator();
-            pdfItem.DropDownItems.Add(sep);
+            if (relevantDocs.Count > 0 && mruDocs.Count > 0)
+            {
+                ToolStripSeparator sep = new ToolStripSeparator();
+                pdfItem.DropDownItems.Add(sep);
+            }
+            
 
             foreach (DocumentInfo di in mruDocs)
             {
