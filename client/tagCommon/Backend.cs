@@ -59,6 +59,11 @@ namespace TagCommon
             return GetJsonFromBackend("tagsForEmail/" + entryID);
         }
 
+        public static String AllTags()
+        {
+            return GetJsonFromBackend("allTags");
+        }
+
         public static String DocsForTag(String tag)
         {
             return GetJsonFromBackend("docsForTag?tag=" + tag);

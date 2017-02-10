@@ -89,6 +89,10 @@ def tag_resource():
         
 
         
+@app.route('/tagapi/allTags')
+def get_all_tags():
+    return tagTable.get_all_tags()
+   
 @app.route('/tagapi/tagsForEmail/<entryID>')
 def get_tags_for_email(entryID):
     return emailTagTable.get_tags_for_email(entryID)

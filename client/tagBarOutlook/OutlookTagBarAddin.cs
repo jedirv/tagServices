@@ -23,7 +23,7 @@ namespace OutlookTagBar
 
         private Dictionary<Outlook.Inspector, InspectorWrapper> inspectorWrappersValue =
             new Dictionary<Outlook.Inspector, InspectorWrapper>();
-
+        private String NL = Environment.NewLine;
         public Dictionary<Outlook.Inspector, InspectorWrapper> InspectorWrappers
         {
             get
@@ -54,22 +54,11 @@ namespace OutlookTagBar
             /*
              * create the explorer tagBar
              */
-            explorerTagBar = new OutlookTagBar();
+            explorerTagBar = new OutlookTagBar(this);
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
             explorerCustomTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
             explorerCustomTaskPane.Height = 57;
-            System.Windows.Forms.ComboBox cb = explorerTagBar.Controls["comboBox1"] as System.Windows.Forms.ComboBox;
-
-            cb.Items.Add("teaching\\cs500");
-            cb.Items.Add("teaching\\cs501");
-            cb.Items.Add("teaching\\cs502");
-            cb.Items.Add("teaching\\cs503");
-            cb.Items.Add("teaching\\cs504");
-            cb.Items.Add("teaching\\cs505");
-            cb.Items.Add("teaching\\cs506");
-            cb.Items.Add("teaching\\cs507");
-            // cb.Items.Add("word\\tags\\control render testing\\implement remove tag");
-            cb.SelectedIndex = 1;
+            explorerTagBar.LoadTagList(GetLatestTagList());
             explorerCustomTaskPane.Visible = true;
 
             // explorer event
@@ -79,8 +68,41 @@ namespace OutlookTagBar
             // inspector event
             System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
         }
- 
-        void Inspectors_NewInspector(Microsoft.Office.Interop.Outlook.Inspector Inspector)
+        public void CreateNewTag(String tag)
+        {
+            System.Diagnostics.Debug.Write("New label : " + tag + NL);
+            Backend.AddTag(tag);
+            List<String> latestTags = GetLatestTagList();
+            explorerTagBar.LoadTagList(latestTags);
+            Dictionary<Outlook.Inspector, InspectorWrapper>.KeyCollection keys = inspectorWrappersValue.Keys;
+            foreach (Outlook.Inspector inspector in keys)
+            {
+                InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
+                iWrapper.getTagBar().LoadTagList(latestTags);
+            }
+        }
+        public List<String> GetLatestTagList()
+        {
+            String json = TagCommon.Backend.AllTags();
+            TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
+            List<TagName> tagNameList = tagNames.Tags;
+            List<String> tags = new List<String>();
+            foreach (TagName tag in tagNameList)
+            {
+                tags.Add(tag.Name);
+            }
+            tags.Sort();
+            return tags;
+        }
+        private void Inspector_Activated()
+        {
+            System.Diagnostics.Debug.Write("INSPECTOR Activated...\n");
+        }
+        private void Inspector_Deactivated()
+        {
+            System.Diagnostics.Debug.Write("INSPECTOR DEactivated...\n");
+        }
+        private void Inspectors_NewInspector(Microsoft.Office.Interop.Outlook.Inspector Inspector)
         {
             // this only fires when we open a new window, not when we just single click on an email
             if (Inspector.CurrentItem is Outlook.MailItem)
@@ -94,8 +116,12 @@ namespace OutlookTagBar
                 }
                 else
                 {
+                    ((Outlook.InspectorEvents_10_Event)Inspector).Activate += new
+           Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activated);
+                    ((Outlook.InspectorEvents_10_Event)Inspector).Deactivate += new
+          Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivated); ;
                     System.Diagnostics.Debug.Write("CREATING inspectorWrapper\n");
-                    inspectorWrappersValue.Add(Inspector, new InspectorWrapper(Inspector, mailItem));
+                    inspectorWrappersValue.Add(Inspector, new InspectorWrapper(this, Inspector, mailItem));
                 }
                 
             }
@@ -139,17 +165,7 @@ namespace OutlookTagBar
                 }
             }
         }
-        public static void ExpressTagButtonsFromBackend(OutlookTagBar tagBar, Outlook.MailItem mailItem)
-        {
-            String entryID = mailItem.EntryID;
-            String json = TagCommon.Backend.TagsForEmail(entryID);
-            TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
-            List<TagName> tags = tagNames.Tags;
-            foreach (TagName tag in tags)
-            {
-                tagBar.AddNewButton(tag.Name);
-            }
-        }
+        
         private void CurrentExplorer_SelectionChanged()
         {
             try
@@ -161,16 +177,27 @@ namespace OutlookTagBar
                     {
 
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
-                        explorerTagBar.RemoveAllTagButtons();
-                        ExpressTagButtonsFromBackend(explorerTagBar, mailItem);
-
+                        explorerTagBar.RefreshTagButtons(mailItem);
+                        foreach (Outlook.Inspector inspector in inspectors)
+                        {
+                            if (inspector.CurrentItem is Outlook.MailItem)
+                            {
+                                Outlook.MailItem mi = inspector.CurrentItem as Outlook.MailItem;
+                                if (mi.EntryID.Equals(mailItem.EntryID))
+                                {
+                                    InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
+                                    OutlookTagBar otb = iWrapper.getTagBar();
+                                    otb.RefreshTagButtons(mi);
+                                }
+                            }
+                        }
                         String senderName     = mailItem.Sender.Name;
                         Backend.AddPerson(Utils.URLEscapeString(Utils.NormalizeName(senderName)));
                         Backend.ShowPersons();
                         String entryID = mailItem.EntryID;
                         String conversationID = mailItem.ConversationID;
                         Backend.AddEmail(entryID, conversationID);
-                        
+                        System.Diagnostics.Debug.Write("CurrentExplorer_SelectionChanged FIRED \n");
                     }
                 }
             }
@@ -181,6 +208,7 @@ namespace OutlookTagBar
             }
         }
        
+        
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
             // Note: Outlook no longer raises this event. If you have code that 
@@ -207,7 +235,8 @@ namespace OutlookTagBar
         private Outlook.Inspector inspector;
         private CustomTaskPane taskPane;
         private Outlook.MailItem mailItem;
-        public InspectorWrapper(Outlook.Inspector Inspector, Outlook.MailItem mailItem)
+        private OutlookTagBar inspectorTagBar;
+        public InspectorWrapper(OutlookTagBarAddin addin, Outlook.Inspector Inspector, Outlook.MailItem mailItem)
         {
             this.mailItem = mailItem;
             this.inspector = Inspector;
@@ -215,7 +244,8 @@ namespace OutlookTagBar
                 new Outlook.InspectorEvents_CloseEventHandler(InspectorWrapper_Close);
 
             System.Diagnostics.Debug.Write("ADDING taskPane (inspectorTagBar)\n");
-            OutlookTagBar inspectorTagBar = new OutlookTagBar();
+            inspectorTagBar = new OutlookTagBar(addin);
+            inspectorTagBar.LoadTagList(addin.GetLatestTagList());
             taskPane = Globals.OutlookTagBarAddin.CustomTaskPanes.Add(inspectorTagBar, "Inspector Tag Bar", this.inspector);
             taskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
             taskPane.Height = 57;
@@ -224,8 +254,12 @@ namespace OutlookTagBar
             if (mailItem != null)
             {
                 //inspectorTagBar.RemoveAllTagButtons();
-                OutlookTagBarAddin.ExpressTagButtonsFromBackend(inspectorTagBar, mailItem);
+                inspectorTagBar.ExpressTagButtonsFromBackend(mailItem);
             }
+        }
+        public OutlookTagBar getTagBar()
+        {
+            return this.inspectorTagBar;
         }
         void TaskPane_VisibleChanged(object sender, EventArgs e)
         {

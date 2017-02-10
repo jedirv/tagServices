@@ -18,12 +18,14 @@ namespace OutlookTagBar
 {
     public partial class OutlookTagBar : UserControl
     {
-        public OutlookTagBar()
+        public OutlookTagBar(OutlookTagBarAddin addin)
         {
+            this.addin = addin;
             InitializeComponent();
         }
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
+        private OutlookTagBarAddin addin;
        
 
         private void Button1_Click(object sender, EventArgs e)
@@ -74,12 +76,29 @@ namespace OutlookTagBar
             }
             return false;
         }
+        public void RefreshTagButtons(Outlook.MailItem mailItem)
+        {
+            RemoveAllTagButtons();
+            ExpressTagButtonsFromBackend(mailItem);
+        }
+        public void ExpressTagButtonsFromBackend(Outlook.MailItem mailItem)
+        {
+            String entryID = mailItem.EntryID;
+            String json = TagCommon.Backend.TagsForEmail(entryID);
+            TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
+            List<TagName> tags = tagNames.Tags;
+            foreach (TagName tag in tags)
+            {
+                AddNewButton(tag.Name);
+            }
+        }
         private void ButtonAddTag_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.ComboBox cb = this.Controls["comboBox1"] as System.Windows.Forms.ComboBox;
+            ComboBox cb = this.Controls["comboBoxTags"] as ComboBox;
             if (cb.Items.Count > 0)
             {
                 String selectionText = cb.SelectedItem.ToString();
+                //Backend.TagEmail
                 AddNewButton(selectionText);
             }
         }
@@ -214,8 +233,31 @@ namespace OutlookTagBar
                 System.Diagnostics.Debug.Write("opening file : " + path + NL);
             }
         }
+
+
+        private void NewTagKeyPress(object sender, KeyPressEventArgs e)
+        {
+            switch (e.KeyChar)
+            {
+                case '\r':
+                    addin.CreateNewTag(((TextBox)sender).Text);
+                    break;
+            }
+        }
+       
+       
+        public void LoadTagList(List<String> latestTags)
+        {
+            ComboBox cb = this.Controls["comboBoxTags"] as ComboBox;
+            cb.Items.Clear();
+            foreach (String tag in latestTags)
+            {
+                cb.Items.Add(tag);
+            }
+            cb.SelectedIndex = 0;
+        }
     }
-   
+
     public class DocumentEventArgs : EventArgs
     {
         private String path;
