@@ -48,10 +48,7 @@ namespace OutlookTagBar
             MouseEventArgs mea = e as MouseEventArgs;
             if (mea.Location.X <= imageWidth)
             {
-                this.Controls.Remove(clickedButton);
-                tagButtons.Remove(clickedButton);
-                System.Diagnostics.Debug.Write("button count: " + tagButtons.Count + NL);
-                PositionButtons();
+                addin.RemoveTagFromEmail(clickedButton.Text, GetMostRecentEmailItem());
             }
         }
 
@@ -110,6 +107,24 @@ namespace OutlookTagBar
             }
         }
        
+        public void RemoveTagButton(String tagName)
+        {
+            Button buttonToRemove = null;
+            foreach (Button b in tagButtons)
+            {
+                if (b.Text.Equals(tagName))
+                {
+                    buttonToRemove = b;
+                }
+            }
+            if (null != buttonToRemove)
+            {
+                this.Controls.Remove(buttonToRemove);
+                tagButtons.Remove(buttonToRemove);
+                System.Diagnostics.Debug.Write("button count: " + tagButtons.Count + NL);
+                PositionButtons();
+            }
+        }
         public void AddNewButton(String name)
         {
             if (!IsButtonAlreadyPresent(name))

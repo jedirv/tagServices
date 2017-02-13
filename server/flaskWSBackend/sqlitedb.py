@@ -19,20 +19,25 @@ def query_db(query, args=()):
     cur.close()
     return rv
 
-def insert_db(query, args=()):
+def change_db(query, args=()):
     cur = get_db().execute(query, args)
     get_db().commit()
     rv = cur.fetchall()
     cur.close()
     return rv
-	
+
 
 def insert_and_get_id(insert_command, table):
     print(insert_command)
-    all_rows = insert_db(insert_command)
+    all_rows = change_db(insert_command)
     query = "SELECT max(id) from {0};".format(table)
     all_rows = query_db(query)
     return util.insert_succeeded(all_rows[0][0])
+
+def delete(delete_command, id):
+    print(delete_command)
+    all_rows = change_db(delete_command)
+    return util.delete_succeeded(id)
 
 def close_connection(exception):
     db = getattr(g, '_database', None)

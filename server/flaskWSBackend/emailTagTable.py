@@ -33,7 +33,16 @@ def add_email_tag(entryID, tag):
         return util.insert_rejected('email {0} does not exist'.format(entryID))
     print('tagID is {0}'.format(tagID))
     query = "INSERT INTO EmailTags (EmailID, TagID) VALUES ('{0}','{1}');".format(emailID, tagID)
-    return db.insert_and_get_id(query, 'PersonTags')
+    return db.insert_and_get_id(query, 'EmailTags')
+
+
+def delete_email_tag(entryID, tag):
+    emailTagID = get_email_tag_id(entryID, tag)
+    if (emailTagID=='?'):
+        return util.delete_rejected('no entry found for tag {0} and email {1}'.format(tag, entryID))
+    print('emailTagId to remove is {0}'.format(emailTagID))
+    query = "DELETE FROM EmailTags WHERE ID='{0}';".format(emailTagID)
+    return db.delete(query, emailTagID)
 
 
 def get_tags_for_email(entryID):

@@ -68,6 +68,15 @@ namespace OutlookTagBar
             // inspector event
             System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
         }
+        public void RemoveTagFromEmail(String tag, Outlook.MailItem mi)
+        {
+            Backend.UntagEmail(mi.EntryID, tag);
+            RemoveTagFromExplorerEmailIfMatch(mi.EntryID, tag);
+            foreach (Outlook.Inspector inspector in inspectors)
+            {
+                RemoveTagFromInspectorEmailIfMatch(inspector, mi.EntryID, tag);
+            }
+        }
         public void AddTagToEmail(String tag, Outlook.MailItem mi)
         {
             Backend.TagEmail(mi.EntryID, tag);
@@ -75,6 +84,19 @@ namespace OutlookTagBar
             foreach (Outlook.Inspector inspector in inspectors)
             {
                 AddTagToInspectorEmailIfMatch(inspector, mi.EntryID, tag);
+            }
+        }
+        private void RemoveTagFromInspectorEmailIfMatch(Outlook.Inspector inspector, String entryID, String tag)
+        {
+            if (inspector.CurrentItem is Outlook.MailItem)
+            {
+                Outlook.MailItem mailItem = inspector.CurrentItem as Outlook.MailItem;
+                if (entryID.Equals(mailItem.EntryID))
+                {
+                    InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
+                    OutlookTagBar otb = iWrapper.getTagBar();
+                    otb.RemoveTagButton(tag);
+                }
             }
         }
         private void AddTagToInspectorEmailIfMatch(Outlook.Inspector inspector, String entryID, String tag)
@@ -88,6 +110,29 @@ namespace OutlookTagBar
                     OutlookTagBar otb = iWrapper.getTagBar();
                     otb.AddNewButton(tag);
                 }
+            }
+        }
+        private void RemoveTagFromExplorerEmailIfMatch(String entryID, String tag)
+        {
+            try
+            {
+                if (this.Application.ActiveExplorer().Selection.Count > 0)
+                {
+                    Object selObject = this.Application.ActiveExplorer().Selection[1];
+                    if (selObject is Outlook.MailItem)
+                    {
+                        Outlook.MailItem mailItem = selObject as Outlook.MailItem;
+                        if (mailItem.EntryID.Equals(entryID))
+                        {
+                            explorerTagBar.RemoveTagButton(tag);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                String expMessage = ex.Message;
+                System.Windows.Forms.MessageBox.Show(expMessage);
             }
         }
         private void AddTagToExplorerEmailIfMatch(String entryID, String tag)
@@ -224,6 +269,7 @@ namespace OutlookTagBar
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
                         explorerTagBar.SetMostRecentEmailItem(mailItem);
                         explorerTagBar.RefreshTagButtons(mailItem);
+                        inspectors = this.Application.Inspectors;
                         foreach (Outlook.Inspector inspector in inspectors)
                         {
                             InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
@@ -300,6 +346,7 @@ namespace OutlookTagBar
             taskPane.VisibleChanged += new EventHandler(TaskPane_VisibleChanged);
             if (mailItem != null)
             {
+                inspectorTagBar.SetMostRecentEmailItem(mailItem);
                 //inspectorTagBar.RemoveAllTagButtons();
                 inspectorTagBar.ExpressTagButtonsFromBackend(mailItem);
             }

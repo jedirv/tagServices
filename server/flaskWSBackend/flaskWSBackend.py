@@ -76,6 +76,16 @@ def tag_email():
     else:
         return emailTagTable.add_email_tag(entryID, tag)
         
+@app.route('/tagapi/untagEmail/', methods=['GET'])
+def untag_email():
+    entryID = request.args.get('entryID')
+    tag = request.args.get('tag')
+    if not(emailTagTable.is_email_tag_in_db(entryID, tag)):
+        return util.delete_rejected('email {0} was not tagged with {1}'.format(entryID, tag))
+    else:
+        return emailTagTable.delete_email_tag(entryID, tag)
+        
+
 
 @app.route('/tagapi/tagResource/', methods=['GET'])
 def tag_resource():

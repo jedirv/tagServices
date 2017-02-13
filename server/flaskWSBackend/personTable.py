@@ -24,5 +24,5 @@ def show_persons():
     list_string = ''
     for row in all_rows:
         list_string = list_string + "\n" + row['Name']
-    return util.get_insert_response("debugQuery Persons", list_string);
+    return util.get_simple_response("debugQuery Persons", list_string);
 	

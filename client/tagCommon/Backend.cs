@@ -50,6 +50,10 @@ namespace TagCommon
         {
             return GetJsonFromBackend("tagEmail?entryID=" + entryID + "&tag=" + tag);
         }
+        public static String UntagEmail(String entryID, String tag)
+        {
+            return GetJsonFromBackend("untagEmail?entryID=" + entryID + "&tag=" + tag);
+        }
         public static String TagResource(String type, String name, String tag)
         {
             return GetJsonFromBackend("tagResource?type=" + type + "&name=" + name + "&tag=" + tag);
