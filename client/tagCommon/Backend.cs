@@ -48,7 +48,7 @@ namespace TagCommon
         }
         public static String TagEmail(String entryID, String tag)
         {
-            return GetJsonFromBackend("tagEmail?entryID=" + entryID + "?tag=" + tag);
+            return GetJsonFromBackend("tagEmail?entryID=" + entryID + "&tag=" + tag);
         }
         public static String TagResource(String type, String name, String tag)
         {

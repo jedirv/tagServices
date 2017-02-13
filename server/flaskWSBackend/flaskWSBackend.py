@@ -13,7 +13,7 @@ import personTagTable
 import tester
 import util
 import sqlitedb as db
-
+import os
 
 
 app = Flask(__name__)
@@ -122,5 +122,9 @@ def close_connection(exception):
     db.close_connection(exception)
 
         
- 
+if __name__ == '__main__':
+    os.chdir("C:\\Users\\sudo\\tagServices\\server\\flaskWSBackend")
+    # http://librelist.com/browser/flask/2011/5/12/using-eclipse+pydev-for-debugging-flask-apps/
+    app.debug = False
+    app.run()
     

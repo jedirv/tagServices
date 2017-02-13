@@ -54,7 +54,7 @@ namespace OutlookTagBar
             /*
              * create the explorer tagBar
              */
-            explorerTagBar = new OutlookTagBar(this);
+            explorerTagBar = new OutlookTagBar(this, null);
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
             explorerCustomTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
             explorerCustomTaskPane.Height = 57;
@@ -67,6 +67,51 @@ namespace OutlookTagBar
 
             // inspector event
             System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
+        }
+        public void AddTagToEmail(String tag, Outlook.MailItem mi)
+        {
+            Backend.TagEmail(mi.EntryID, tag);
+            AddTagToExplorerEmailIfMatch(mi.EntryID, tag);
+            foreach (Outlook.Inspector inspector in inspectors)
+            {
+                AddTagToInspectorEmailIfMatch(inspector, mi.EntryID, tag);
+            }
+        }
+        private void AddTagToInspectorEmailIfMatch(Outlook.Inspector inspector, String entryID, String tag)
+        {
+            if (inspector.CurrentItem is Outlook.MailItem)
+            {
+                Outlook.MailItem mailItem = inspector.CurrentItem as Outlook.MailItem;
+                if (entryID.Equals(mailItem.EntryID))
+                {
+                    InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
+                    OutlookTagBar otb = iWrapper.getTagBar();
+                    otb.AddNewButton(tag);
+                }
+            }
+        }
+        private void AddTagToExplorerEmailIfMatch(String entryID, String tag)
+        {
+            try
+            {
+                if (this.Application.ActiveExplorer().Selection.Count > 0)
+                {
+                    Object selObject = this.Application.ActiveExplorer().Selection[1];
+                    if (selObject is Outlook.MailItem)
+                    {
+                        Outlook.MailItem mailItem = selObject as Outlook.MailItem;
+                        if (mailItem.EntryID.Equals(entryID))
+                        {
+                            explorerTagBar.AddNewButton(tag);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                String expMessage = ex.Message;
+                System.Windows.Forms.MessageBox.Show(expMessage);
+            }
         }
         public void CreateNewTag(String tag)
         {
@@ -177,16 +222,18 @@ namespace OutlookTagBar
                     {
 
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
+                        explorerTagBar.SetMostRecentEmailItem(mailItem);
                         explorerTagBar.RefreshTagButtons(mailItem);
                         foreach (Outlook.Inspector inspector in inspectors)
                         {
+                            InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
+                            OutlookTagBar otb = iWrapper.getTagBar();
                             if (inspector.CurrentItem is Outlook.MailItem)
                             {
                                 Outlook.MailItem mi = inspector.CurrentItem as Outlook.MailItem;
+                                otb.SetMostRecentEmailItem(mi);
                                 if (mi.EntryID.Equals(mailItem.EntryID))
                                 {
-                                    InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
-                                    OutlookTagBar otb = iWrapper.getTagBar();
                                     otb.RefreshTagButtons(mi);
                                 }
                             }
@@ -244,7 +291,7 @@ namespace OutlookTagBar
                 new Outlook.InspectorEvents_CloseEventHandler(InspectorWrapper_Close);
 
             System.Diagnostics.Debug.Write("ADDING taskPane (inspectorTagBar)\n");
-            inspectorTagBar = new OutlookTagBar(addin);
+            inspectorTagBar = new OutlookTagBar(addin, mailItem);
             inspectorTagBar.LoadTagList(addin.GetLatestTagList());
             taskPane = Globals.OutlookTagBarAddin.CustomTaskPanes.Add(inspectorTagBar, "Inspector Tag Bar", this.inspector);
             taskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;

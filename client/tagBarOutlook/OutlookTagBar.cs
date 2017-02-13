@@ -18,7 +18,7 @@ namespace OutlookTagBar
 {
     public partial class OutlookTagBar : UserControl
     {
-        public OutlookTagBar(OutlookTagBarAddin addin)
+        public OutlookTagBar(OutlookTagBarAddin addin, Outlook.MailItem mailItem)
         {
             this.addin = addin;
             InitializeComponent();
@@ -26,14 +26,21 @@ namespace OutlookTagBar
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
         private OutlookTagBarAddin addin;
-       
+        private Outlook.MailItem mostRecentMailItem;  
 
         private void Button1_Click(object sender, EventArgs e)
         {
 
         }
 
-
+        public void SetMostRecentEmailItem(Outlook.MailItem mailItem)
+        {
+            this.mostRecentMailItem = mailItem;
+        }
+        private Outlook.MailItem GetMostRecentEmailItem()
+        {
+            return this.mostRecentMailItem;
+        }
         public void TagButton_Click(object sender, EventArgs e)
         {
             Button clickedButton = sender as Button;
@@ -97,11 +104,12 @@ namespace OutlookTagBar
             ComboBox cb = this.Controls["comboBoxTags"] as ComboBox;
             if (cb.Items.Count > 0)
             {
-                String selectionText = cb.SelectedItem.ToString();
-                //Backend.TagEmail
-                AddNewButton(selectionText);
+                String tag = cb.SelectedItem.ToString();
+                Outlook.MailItem mi = GetMostRecentEmailItem();
+                addin.AddTagToEmail(tag, mi);
             }
         }
+       
         public void AddNewButton(String name)
         {
             if (!IsButtonAlreadyPresent(name))
