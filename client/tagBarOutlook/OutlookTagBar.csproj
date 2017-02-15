@@ -155,12 +155,15 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="CategoryUtils.cs" />
+    <Compile Include="InspectorWrapper.cs" />
     <Compile Include="OutlookTagBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="OutlookTagBar.Designer.cs">
       <DependentUpon>OutlookTagBar.cs</DependentUpon>
     </Compile>
+    <Compile Include="OutlookTagUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -48,7 +48,7 @@ namespace OutlookTagBar
             MouseEventArgs mea = e as MouseEventArgs;
             if (mea.Location.X <= imageWidth)
             {
-                addin.RemoveTagFromEmail(clickedButton.Text, GetMostRecentEmailItem());
+                OutlookTagUtils.RemoveTagFromEmail(clickedButton.Text, GetMostRecentEmailItem(), this.addin.InPlayApplication, this.addin.ExplorerTagBar);
             }
         }
 
@@ -103,7 +103,7 @@ namespace OutlookTagBar
             {
                 String tag = cb.SelectedItem.ToString();
                 Outlook.MailItem mi = GetMostRecentEmailItem();
-                addin.AddTagToEmail(tag, mi);
+                OutlookTagUtils.AddTagToEmail(tag, mi, this.addin.InPlayApplication, this.addin.ExplorerTagBar);
             }
         }
        
@@ -263,7 +263,7 @@ namespace OutlookTagBar
             switch (e.KeyChar)
             {
                 case '\r':
-                    addin.CreateNewTag(((TextBox)sender).Text);
+                    OutlookTagUtils.CreateNewTag(((TextBox)sender).Text, this.addin.Application, this.addin.ExplorerTagBar);
                     break;
             }
         }

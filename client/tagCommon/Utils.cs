@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net;
-using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace TagCommon
 {
@@ -49,79 +48,36 @@ namespace TagCommon
             return System.Net.WebUtility.UrlEncode(s);
         }
 
-        public static void EnsureCategoryExists(String tag, Outlook.Application application)
+        public static List<String> CleanTagNames(String[] names)
         {
-            Outlook.Categories categories = application.Session.Categories;
-            Outlook.Category match = null;
-            foreach (Outlook.Category category in categories)
+            List<String> result = new List<String>();
+            foreach (String name in names)
             {
-                if (category.Name.Equals(tag))
+                String cleanString = "";
+                if (name.StartsWith(" "))
                 {
-                    match = category;
-                }
-            }
-            if (null == match)
-            {
-                throw new TagServicesException("Tried to add nonexistent category mailItem as per tag " + tag);
-            }
-        }
-        public static void RemoveCategoryFromMailITem(String tag, Outlook.MailItem mi)
-        {
-            if (tag.Equals(mi.Categories))
-            {
-                mi.Categories = "";
-                mi.Save();
-            }
-            else
-            {
-                if (mi.Categories.StartsWith(tag + ", "))
-                {
-                    mi.Categories = mi.Categories.Replace(tag + ", ", "");
-                    mi.Save();
-                }
-                if (mi.Categories.Contains(", " + tag + ", "))
-                {
-                    mi.Categories = mi.Categories.Replace(", " + tag + ", ", ", ");
-                    mi.Save();
-                }
-                if (mi.Categories.EndsWith(", " + tag))
-                {
-                    mi.Categories = mi.Categories.Replace(", " + tag, "");
-                    mi.Save();
-                }
-            }
-        }
-        public static void AddCategoryToMailItem(Outlook.MailItem mi, String tag, Outlook.Application application)
-        {
-            Utils.EnsureCategoryExists(tag, application);
-            String categoriesString = mi.Categories;
-            if (null == categoriesString || "".Equals(categoriesString))
-            {
-                mi.Categories = tag;// adding first category
-                mi.Save();
-            }
-            else
-            {
-                // some categories already assigned
-                String[] cats = categoriesString.Split(',');
-                bool categoryAlreadyAssociated = false;
-                foreach (String cat in cats)
-                {
-                    if (cat.Equals(tag))
-                    {
-                        categoryAlreadyAssociated = true;
-                    }
-                }
-                if (categoryAlreadyAssociated)
-                {
-                    // don't change anything
+                    cleanString = name.Remove(0, 1);
                 }
                 else
                 {
-                    mi.Categories = categoriesString + "," + tag;
-                    mi.Save();
+                    cleanString = name;
                 }
+                result.Add(cleanString);
             }
+            return result;
+        }
+        public static List<String> GetLatestTagList()
+        {
+            String json = Backend.AllTags();
+            TagNames tagNames = Utils.GetTagNamesForJson(json);
+            List<TagName> tagNameList = tagNames.Tags;
+            List<String> tags = new List<String>();
+            foreach (TagName tag in tagNameList)
+            {
+                tags.Add(tag.Name);
+            }
+            tags.Sort();
+            return tags;
         }
     }
 }
