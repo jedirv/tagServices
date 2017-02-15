@@ -71,21 +71,27 @@ namespace OutlookTagBar
         public void RemoveTagFromEmail(String tag, Outlook.MailItem mi)
         {
             Backend.UntagEmail(mi.EntryID, tag);
+            Utils.RemoveCategoryFromMailITem(tag, mi);
             RemoveTagFromExplorerEmailIfMatch(mi.EntryID, tag);
             foreach (Outlook.Inspector inspector in inspectors)
             {
                 RemoveTagFromInspectorEmailIfMatch(inspector, mi.EntryID, tag);
             }
         }
+        
+        
+       
         public void AddTagToEmail(String tag, Outlook.MailItem mi)
         {
             Backend.TagEmail(mi.EntryID, tag);
+            Utils.AddCategoryToMailItem(mi, tag, this.Application);
             AddTagToExplorerEmailIfMatch(mi.EntryID, tag);
             foreach (Outlook.Inspector inspector in inspectors)
             {
                 AddTagToInspectorEmailIfMatch(inspector, mi.EntryID, tag);
             }
         }
+       
         private void RemoveTagFromInspectorEmailIfMatch(Outlook.Inspector inspector, String entryID, String tag)
         {
             if (inspector.CurrentItem is Outlook.MailItem)
@@ -160,7 +166,8 @@ namespace OutlookTagBar
         }
         public void CreateNewTag(String tag)
         {
-            System.Diagnostics.Debug.Write("New label : " + tag + NL);
+            System.Diagnostics.Debug.Write("New tag : " + tag + NL);
+            AddCategory(tag);
             Backend.AddTag(tag);
             List<String> latestTags = GetLatestTagList();
             explorerTagBar.LoadTagList(latestTags);
@@ -170,6 +177,30 @@ namespace OutlookTagBar
                 InspectorWrapper iWrapper = inspectorWrappersValue[inspector];
                 iWrapper.getTagBar().LoadTagList(latestTags);
             }
+        }
+        private void AddCategory(String tagName)
+        {
+            Outlook.Categories categories = Application.Session.Categories;
+            if (!CategoryExists(tagName))
+            {
+                Outlook.Category category = categories.Add(tagName);
+            }
+        }
+        private bool CategoryExists(string categoryName)
+        {
+            try
+            {
+                Outlook.Category category = this.Application.Session.Categories[categoryName];
+                if (category != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch { return false; }
         }
         public List<String> GetLatestTagList()
         {
