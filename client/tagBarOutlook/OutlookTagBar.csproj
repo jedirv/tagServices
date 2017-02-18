@@ -167,6 +167,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Ribbon1.cs" />
     <EmbeddedResource Include="OutlookTagBar.resx">
       <DependentUpon>OutlookTagBar.cs</DependentUpon>
     </EmbeddedResource>
@@ -207,6 +208,9 @@
       <Project>{923c601c-f894-40d4-a9b7-5a339252a6d3}</Project>
       <Name>TagCommon</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Ribbon1.xml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

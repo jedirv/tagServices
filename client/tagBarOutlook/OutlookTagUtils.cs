@@ -27,6 +27,7 @@ namespace OutlookTagBar
         public static void AddTagToEmail(String tag, Outlook.MailItem mi, Outlook.Application application, OutlookTagBar explorerTagBar)
         {
             Backend.TagEmail(mi.EntryID, tag);
+            Backend.TagPerson(Utils.NormalizeName(mi.SenderName), tag);
             CategoryUtils.AddCategoryToMailItem(mi, tag, application);
             AddTagToExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBar);
             foreach (Outlook.Inspector inspector in application.Inspectors)

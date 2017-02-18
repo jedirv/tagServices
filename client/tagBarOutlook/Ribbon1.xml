@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+   <commands> 
+     <command idMso="SaveAttachAs" onAction="mySaveAttachAs" /> 
+     <command idMso="SaveAttachments" onAction="mySaveAttachments" /> 
+   </commands> 
+  <ribbon>
+    <tabs>
+      <tab idMso="TabAddIns">  
+    <group id="ContentGroup" label="JedContent">  
+        <button id="textButton" label="Insert Text"  
+             screentip="Text" onAction="OnTextButton"  
+             supertip="Inserts text at the cursor location."/>  
+        <button id="tableButton" label="Insert Table"  
+             screentip="Table" onAction="OnTableButton"  
+             supertip="Inserts a table at the cursor location."/>  
+    </group>  
+</tab>  
+    </tabs>
+  </ribbon>
+</customUI>
+

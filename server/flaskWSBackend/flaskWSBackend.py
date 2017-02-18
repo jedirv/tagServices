@@ -30,28 +30,33 @@ def add_tag():
     else:
         return tagTable.add_tag(tag)
         
-@app.route('/tagapi/addResource/<type>/<name>')
-def add_resource(type, name):
-    if resourceTable.is_resource_in_db(type, name):
-        return util.insert_rejected('resource {0} of type {1} already exists'.format(name, type))
+@app.route('/tagapi/addResource/', methods=['GET'])
+def add_resource():
+    resource_type = request.args.get('resourceType')
+    name = request.args.get('name')
+    if resourceTable.is_resource_in_db(resource_type, name):
+        return util.insert_rejected('resource {0} of type {1} already exists'.format(name, resource_type))
     else:
-        return resourceTable.add_resource(type, name)
+        return resourceTable.add_resource(resource_type, name)
         
         
-@app.route('/tagapi/addPerson/<person>')
-def add_person(person):
-    if personTable.is_person_in_db(person):
-        return util.insert_rejected('person {0} already exists'.format(person))
+@app.route('/tagapi/addPerson/', methods=['GET'])
+def add_person():
+    name = request.args.get('name')
+    if personTable.is_person_in_db(name):
+        return util.insert_rejected('person {0} already exists'.format(name))
     else:
-        return personTable.add_person(person)
+        return personTable.add_person(name)
     
 @app.route('/tagapi/showPersons')
 def show_persons():
     return personTable.show_persons()
         
 
-@app.route('/tagapi/addEmail/<conversationID>/<entryID>')
-def add_email(conversationID, entryID):
+@app.route('/tagapi/addEmail/', methods=['GET'])
+def add_email():
+    conversationID = request.args.get('conversationID')
+    entryID = request.args.get('entryID')
     if emailTable.is_email_in_db(conversationID, entryID):
         return util.insert_rejected('emails entry {0} already exists'.format(entryID))
     else:
@@ -61,7 +66,7 @@ def add_email(conversationID, entryID):
 @app.route('/tagapi/tagPerson/', methods=['GET'])
 def tag_person():
     tag = request.args.get('tag')
-    person = request.args.get('person')
+    person = request.args.get('name')
     if personTagTable.is_person_tag_in_db(person, tag):
         return util.insert_rejected('person {0} already tagged with {1}'.format(person, tag))
     else:
@@ -103,8 +108,9 @@ def tag_resource():
 def get_all_tags():
     return tagTable.get_all_tags()
    
-@app.route('/tagapi/tagsForEmail/<entryID>')
-def get_tags_for_email(entryID):
+@app.route('/tagapi/tagsForEmail/', methods=['GET'])
+def get_tags_for_email():
+    entryID = request.args.get('entryID')
     return emailTagTable.get_tags_for_email(entryID)
 
 
@@ -131,7 +137,10 @@ def run_tests():
 def close_connection(exception):
     db.close_connection(exception)
 
-        
+#def unescape_url_param(s):
+#    s = s.replace("%5C", "\\")
+#    return s.replace("+"," ")
+  
 if __name__ == '__main__':
     os.chdir("C:\\Users\\sudo\\tagServices\\server\\flaskWSBackend")
     # http://librelist.com/browser/flask/2011/5/12/using-eclipse+pydev-for-debugging-flask-apps/

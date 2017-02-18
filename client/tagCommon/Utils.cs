@@ -10,6 +10,9 @@ namespace TagCommon
 {
     public class Utils
     {
+        public static string RESOURCE_TYPE_FILE = "FILE";
+        public static string RESOURCE_TYPE_URL = "URL";
+
         public static Documents GetDocumentsForJson(String json)
         {
             Documents docs = JsonConvert.DeserializeObject<Documents>(json);

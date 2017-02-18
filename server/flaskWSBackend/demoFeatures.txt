@@ -1,0 +1,15 @@
+Here's my detailed write up of today's discussion:
+
+DEMO PREP
+open email calls addEmail, addPerson
+create tag for email calls addTag, tagEmail, tagPerson,copy the tag into MailItems.category field
+    
+save attachment calls addResource, tagResource
+
+DEMO PLAN
+show tags and files associated or not
+show document want to attach via tag in reply window
+
+tag->documents->(worddocname)->attach adds attachment directly to the reply message (rather than via file browser)
+
+tag->documents->(exceldocname)->attach adds attachment directly to the reply message (rather than via file browser)

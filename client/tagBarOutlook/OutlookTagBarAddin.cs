@@ -20,7 +20,12 @@ namespace OutlookTagBar
         private Outlook.Explorer currentExplorer = null;
         private OutlookTagBar explorerTagBar;
         private Microsoft.Office.Tools.CustomTaskPane explorerCustomTaskPane;
+        private Outlook.MailItem mostRecentNavigatedToMailItem = null;
 
+        protected override Microsoft.Office.Core.IRibbonExtensibility CreateRibbonExtensibilityObject()
+        {
+            return new Ribbon1();
+        }
         public Outlook.Application InPlayApplication
         {
             get
@@ -35,6 +40,7 @@ namespace OutlookTagBar
                 return explorerTagBar;
             }
         }
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             /**
@@ -68,9 +74,13 @@ namespace OutlookTagBar
             // explorer event
             currentExplorer = this.Application.ActiveExplorer();
             currentExplorer.SelectionChange += new Outlook.ExplorerEvents_10_SelectionChangeEventHandler(CurrentExplorer_SelectionChanged);
+            
 
             // inspector event
             System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
+            //Application.PickerDialog.Properties.
+            //Application.PickerDialog.Show(false);
+           
         }
         
         
@@ -89,6 +99,17 @@ namespace OutlookTagBar
             if (Inspector.CurrentItem is Outlook.MailItem)
             {
                 Outlook.MailItem mailItem = Inspector.CurrentItem as Outlook.MailItem;
+                mostRecentNavigatedToMailItem = mailItem;
+                System.Diagnostics.Debug.Write("mostRecentNavigatedToMailItem " + mailItem.Subject + " \n");
+                mailItem.BeforeAttachmentSave += MailItem_BeforeAttachmentSave;
+                mailItem.BeforeAttachmentWriteToTempFile += MailItem_BeforeAttachmentWriteToTempFile;
+                mailItem.BeforeAttachmentRead += MailItem_BeforeAttachmentRead;
+                mailItem.BeforeAttachmentPreview += MailItem_BeforeAttachmentPreview;
+
+                ((Outlook.ItemEvents_10_Event)mailItem).Reply -= new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+                ((Outlook.ItemEvents_10_Event)mailItem).Reply += new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+
+               // ((Outlook.ItemEvents_10_Event)mailItem).Send += new Outlook.ItemEvents_10_SendEventHandler(MailItem_Send);
                 System.Diagnostics.Debug.Write("NewInspector event fired for mailItem " + mailItem.Subject + " \n");
                 
                 if (InspectorWrapper.inspectorWrappersValue.ContainsKey(Inspector))
@@ -107,7 +128,54 @@ namespace OutlookTagBar
                 
             }
         }
-        
+        /*
+        private void MailItem_Send(ref bool cancel)
+        {
+            Outlook.MailItem mailItem = (Outlook.MailItem)
+            
+            System.Diagnostics.Debug.Write("sending email: " +mailItem.Subject + "\n");
+            string entryID = mailItem.EntryID;
+            System.Diagnostics.Debug.Write("Send entryID is " + entryID + "\n");
+            string u = mailItem.Subject;
+
+        }*/
+        private void MailItem_Reply(Object response, ref bool cancel)
+        {
+            Outlook.MailItem mailItem = (Outlook.MailItem)response;
+
+            System.Diagnostics.Debug.Write("tags for recent email: " + Backend.TagsForEmail(mostRecentNavigatedToMailItem.EntryID) + "\n");
+            string entryID = mailItem.EntryID;
+            System.Diagnostics.Debug.Write("Reply entryID is " + entryID + "\n");
+            System.Diagnostics.Debug.Write("Reply conversationID is " + mailItem.ConversationID + "\n");
+            string u = mailItem.Subject;
+
+        }
+        private void MailItem_BeforeAttachmentPreview(Outlook.Attachment Attachment, ref bool Cancel)
+        {
+            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentPreview\n");
+        }
+
+        private void MailItem_BeforeAttachmentRead(Outlook.Attachment Attachment, ref bool Cancel)
+        {
+            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentRead\n");
+        }
+
+        private void MailItem_BeforeAttachmentWriteToTempFile(Outlook.Attachment Attachment, ref bool Cancel)
+        {
+            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentWriteToTempFile\n");
+            System.Diagnostics.Debug.Write("DisplayName " + Attachment.DisplayName + "\n");
+            System.Diagnostics.Debug.Write("FileName " + Attachment.FileName + "\n");
+            System.Diagnostics.Debug.Write("PathName " + Attachment.PathName + "\n");
+            //Outlook.MailItem mailItem = (Outlook.MailItem)Attachment.Parent;
+            //mailItem.Application.PickerDialog.
+            int x = 3;
+        }
+
+        private void MailItem_BeforeAttachmentSave(Outlook.Attachment Attachment, ref bool Cancel)
+        {
+            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentSave\n");
+        }
+
         private void CurrentExplorer_SelectionChanged()
         {
             try
@@ -119,6 +187,11 @@ namespace OutlookTagBar
                     {
 
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
+                        mostRecentNavigatedToMailItem = mailItem;
+                        System.Diagnostics.Debug.Write("mostRecentNavigatedToMailItem " + mailItem.Subject + " \n");
+                        ((Outlook.ItemEvents_10_Event)mailItem).Reply -= new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+                        ((Outlook.ItemEvents_10_Event)mailItem).Reply += new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+
                         explorerTagBar.SetMostRecentEmailItem(mailItem);
                         explorerTagBar.RefreshTagButtons(mailItem);
                         inspectors = this.Application.Inspectors;
@@ -137,7 +210,7 @@ namespace OutlookTagBar
                             }
                         }
                         String senderName     = mailItem.Sender.Name;
-                        Backend.AddPerson(Utils.URLEscapeString(Utils.NormalizeName(senderName)));
+                        Backend.AddPerson(Utils.NormalizeName(senderName));
                         Backend.ShowPersons();
                         String entryID = mailItem.EntryID;
                         String conversationID = mailItem.ConversationID;

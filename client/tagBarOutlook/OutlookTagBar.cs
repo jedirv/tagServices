@@ -18,10 +18,14 @@ namespace OutlookTagBar
 {
     public partial class OutlookTagBar : UserControl
     {
+        private static int tagBarIDSource = 0;
+        private int tagBarID = -1;
         public OutlookTagBar(OutlookTagBarAddin addin, Outlook.MailItem mailItem)
         {
             this.addin = addin;
             InitializeComponent();
+            tagBarID = tagBarIDSource;
+            tagBarIDSource += 1;
         }
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
@@ -35,6 +39,7 @@ namespace OutlookTagBar
 
         public void SetMostRecentEmailItem(Outlook.MailItem mailItem)
         {
+            System.Diagnostics.Debug.Write("tagBar " + tagBarID + " now has email " + mailItem.EntryID + " with subject " + mailItem.Subject + NL);
             this.mostRecentMailItem = mailItem;
         }
         private Outlook.MailItem GetMostRecentEmailItem()
@@ -267,8 +272,8 @@ namespace OutlookTagBar
                     break;
             }
         }
-       
-       
+
+
         public void LoadTagList(List<String> latestTags)
         {
             ComboBox cb = this.Controls["comboBoxTags"] as ComboBox;
@@ -277,7 +282,9 @@ namespace OutlookTagBar
             {
                 cb.Items.Add(tag);
             }
-            cb.SelectedIndex = 0;
+            if (cb.Items.Count > 0) {
+                cb.SelectedIndex = 0;
+            }
         }
     }
 
