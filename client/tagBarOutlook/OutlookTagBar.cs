@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.IO;
 
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
@@ -98,7 +99,7 @@ namespace OutlookTagBar
             List<TagName> tags = tagNames.Tags;
             foreach (TagName tag in tags)
             {
-                AddNewButton(tag.Name);
+                AddNewButton(tag.Name, mailItem);
             }
         }
         private void ButtonAddTag_Click(object sender, EventArgs e)
@@ -130,11 +131,11 @@ namespace OutlookTagBar
                 PositionButtons();
             }
         }
-        public void AddNewButton(String name)
+        public void AddNewButton(String name, Outlook.MailItem mailItem)
         {
             if (!IsButtonAlreadyPresent(name))
             {
-                Button newButton = CreateButton(name);
+                Button newButton = CreateButton(name, mailItem);
                 this.Controls.Add(newButton);
                 tagButtons.Add(newButton);
                 PositionButtons();
@@ -148,7 +149,7 @@ namespace OutlookTagBar
             }
             tagButtons.Clear();
         }
-        public Button CreateButton(String text)
+        public Button CreateButton(String text, Outlook.MailItem mailItem)
         {
             Button newButton = new Button();
             newButton.Image = Image.FromFile("C:\\Users\\sudo\\Downloads\\Close_icon-16-square.png");
@@ -165,10 +166,96 @@ namespace OutlookTagBar
             newButton.FlatAppearance.BorderSize = 1;
             newButton.FlatAppearance.BorderColor = Color.DarkGray;
             //addMenusToButtonFromStub(newButton);
-            AddMenusToButtonFromBackend(newButton);
+            AddMenusToButtonFromBackend(newButton, mailItem);
+            AddAttachmentsMenu(newButton, mailItem);
             return newButton;
         }
-        private void AddMenusFromJson(Button b, String json)
+        private void AddAttachmentsMenu(Button b, Outlook.MailItem mailItem)
+        {
+            ContextMenuStrip menuStrip = b.ContextMenuStrip;
+            if (null == menuStrip)
+            {
+                menuStrip = new ContextMenuStrip();
+                b.ContextMenuStrip = menuStrip;
+            }
+            ToolStripMenuItem attachmentsItem = new ToolStripMenuItem();
+            attachmentsItem.Text = "Attachments";
+            menuStrip.Items.Add(attachmentsItem);
+            Outlook.Attachments attachments = mailItem.Attachments;
+
+            // make the save all attachments item and pass info through Tag
+            ToolStripMenuItem saveAllAttachmentItem = new ToolStripMenuItem();
+            saveAllAttachmentItem.Text = "Save All";
+            saveAllAttachmentItem.Click += new System.EventHandler(this.SaveAllAttachmentsMenuItem_Click);
+            MailItemAttachments mias = new MailItemAttachments();
+            foreach (Outlook.Attachment att in attachments)
+            {
+                mias.Add(new MailItemAttachment(mailItem, att));
+            }
+            saveAllAttachmentItem.Tag = mias;
+            attachmentsItem.DropDownItems.Add(saveAllAttachmentItem);
+
+            // make an entry for each attachment to be saved individually and pass info through Tag
+            foreach (Outlook.Attachment att in attachments)
+            {
+                ToolStripMenuItem attachmentItem = new ToolStripMenuItem();
+                attachmentItem.Text = att.DisplayName;
+                ToolStripMenuItem saveAttachmentItem = new ToolStripMenuItem();
+                saveAttachmentItem.Text = "Save";
+                saveAttachmentItem.Tag = new MailItemAttachment(mailItem, att);
+                saveAttachmentItem.Click += new System.EventHandler(this.SaveAttachmentMenuItem_Click);
+                attachmentItem.DropDownItems.Add(saveAttachmentItem);
+                attachmentsItem.DropDownItems.Add(attachmentItem);
+            }
+        }
+        public void SaveAllAttachmentsMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
+            if (senderMenuItem != null)
+            {
+                FolderBrowserDialog fbd = new FolderBrowserDialog();
+                DialogResult result = fbd.ShowDialog();
+                string foldername = fbd.SelectedPath;
+                MailItemAttachments mias = (MailItemAttachments)senderMenuItem.Tag;
+                List<MailItemAttachment> miaList = mias.GetMIAs();
+                foreach (MailItemAttachment mia in miaList)
+                {
+                    Outlook.Attachment att = mia.GetAttachment();
+                    Outlook.MailItem mi = mia.GetMailItem();
+                    System.Diagnostics.Debug.Write("would save attachment : " + att.FileName + " for " + mi.EntryID + NL);
+                    String path = Path.Combine(foldername ,att.FileName);
+                    att.SaveAsFile(path);
+                    Backend.AddResource(Utils.RESOURCE_TYPE_FILE, path);
+                    Utils.TagResourceForMailItem(mi.EntryID, path);
+                }
+            }
+        }
+        public void SaveAttachmentMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
+            if (senderMenuItem != null)
+            {
+                MailItemAttachment mia = (MailItemAttachment)senderMenuItem.Tag;
+                Outlook.MailItem mailItem = mia.GetMailItem();
+                Outlook.Attachment att = mia.GetAttachment();
+                String attachmentName = att.DisplayName;
+                System.Diagnostics.Debug.Write("saveing attachment : " + attachmentName + NL);
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.Title = "Save Attachment";
+                sfd.FileName = att.FileName;
+                sfd.Filter = "All files(*.*) | *.*";
+                sfd.DefaultExt = System.IO.Path.GetExtension(att.FileName);
+
+                sfd.ShowDialog();
+                String resourceName = sfd.FileName;
+
+                System.Diagnostics.Debug.Write("resourceName : " + resourceName + "\n");
+                att.SaveAsFile(sfd.FileName);
+                Backend.AddResource(Utils.RESOURCE_TYPE_FILE, resourceName);
+                Utils.TagResourceForMailItem(mailItem.EntryID, resourceName);
+            }
+        }
+        private void AddMenusFromJson(Button b, String json, Outlook.MailItem mailItem)
         {
             Documents docs = TagCommon.Utils.GetDocumentsForJson(json);
             List<DocumentInfo> relevantDocs = docs.RelevantDocuments;
@@ -183,7 +270,7 @@ namespace OutlookTagBar
                 ToolStripMenuItem item = new ToolStripMenuItem();
                 item.Text = di.Name;
                 pdfItem.DropDownItems.Add(item);
-                AttachOpenAndAttachMenusToDocName(item, di.Name);
+                AttachOpenAndAttachMenusToDocName(item, di.Name, mailItem);
             }
             if (relevantDocs.Count > 0 && mruDocs.Count > 0)
             {
@@ -197,42 +284,28 @@ namespace OutlookTagBar
                 ToolStripMenuItem item = new ToolStripMenuItem();
                 item.Text = "*" + di.Name;
                 pdfItem.DropDownItems.Add(item);
-                AttachOpenAndAttachMenusToDocName(item, di.Name);
+                AttachOpenAndAttachMenusToDocName(item, di.Name, mailItem);
             }
             menuStrip.Items.Add(pdfItem);
             b.ContextMenuStrip = menuStrip;
         }
-        private void AddMenusToButtonFromBackend(Button b)
+        private void AddMenusToButtonFromBackend(Button b, Outlook.MailItem mailItem)
         {
             String json = Backend.DocsForTag(b.Text);
-            AddMenusFromJson(b,json);
+            AddMenusFromJson(b,json, mailItem);
         }
         
-        private void AddMenusToButtonFromStub(Button b)
+        private void AddMenusToButtonFromStub(Button b, Outlook.MailItem mailItem)
         {
             DocumentsMenuDataStub dataStub = new DocumentsMenuDataStub();
             String json = dataStub.GetData();
-            AddMenusFromJson(b,json);
+            AddMenusFromJson(b,json, mailItem);
         }
-        private void AddAttachment()
-        {
-            /*Outlook.MailItem mail =
-                this.Application.CreateItem
-                (Outlook.OlItemType.olMailItem)
-                as Outlook.MailItem;
-
-            mail.Subject = "An attachment for you!";
-            */
-            OpenFileDialog attachment = new OpenFileDialog();
-
-            attachment.Title = "Select a file to send";
-            attachment.InitialDirectory = @"C:\Users\sudo";
-            attachment.FileName = "junk.txt";
-            attachment.ShowDialog();
-        }
-        private void AttachOpenAndAttachMenusToDocName(ToolStripMenuItem item, String docPath)
+        
+        private void AttachOpenAndAttachMenusToDocName(ToolStripMenuItem item, String docPath, Outlook.MailItem mailItem)
         {
             ToolStripMenuItem attach = new ToolStripMenuItem();
+            attach.Tag = mailItem;
             ToolStripMenuItem open = new ToolStripMenuItem();
             open.Enabled = false;
             attach.Text = "Attach";
@@ -247,9 +320,10 @@ namespace OutlookTagBar
             ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
             if (senderMenuItem != null)
             {
-                String path = senderMenuItem.Text;
+                Outlook.MailItem mi = (Outlook.MailItem)senderMenuItem.Tag;
+                String path = senderMenuItem.OwnerItem.Text;
                 System.Diagnostics.Debug.Write("attaching file : " + path + NL);
-                AddAttachment();
+                mi.Attachments.Add(path, Outlook.OlAttachmentType.olByValue, System.Reflection.Missing.Value, Path.GetFileName(path));
             }
         }
         public void OpenFileMenuItem_Click(object sender, EventArgs e)
@@ -287,7 +361,40 @@ namespace OutlookTagBar
             }
         }
     }
-
+    public class MailItemAttachment
+    {
+        private Outlook.MailItem mailItem;
+        private Outlook.Attachment attachment;
+        public MailItemAttachment(Outlook.MailItem mailItem, Outlook.Attachment attachment)
+        {
+            this.mailItem = mailItem;
+            this.attachment = attachment;
+        }
+        public Outlook.MailItem GetMailItem()
+        {
+            return this.mailItem;
+        }
+        public Outlook.Attachment GetAttachment()
+        {
+            return this.attachment;
+        }
+    }
+    public class MailItemAttachments
+    {
+        List<MailItemAttachment> mias = new List<MailItemAttachment>();
+        private Outlook.Attachment attachment;
+        public MailItemAttachments()
+        {
+        }
+        public void Add(MailItemAttachment mia)
+        {
+            this.mias.Add(mia);
+        }
+        public List<MailItemAttachment> GetMIAs()
+        {
+            return this.mias;
+        }
+    }
     public class DocumentEventArgs : EventArgs
     {
         private String path;

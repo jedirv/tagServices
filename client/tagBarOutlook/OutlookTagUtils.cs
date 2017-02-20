@@ -58,7 +58,7 @@ namespace OutlookTagBar
                 {
                     InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
                     OutlookTagBar otb = iWrapper.getTagBar();
-                    otb.AddNewButton(tag);
+                    otb.AddNewButton(tag, mailItem);
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace OutlookTagBar
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
                         if (mailItem.EntryID.Equals(entryID))
                         {
-                            explorerTagBar.AddNewButton(tag);
+                            explorerTagBar.AddNewButton(tag, mailItem);
                         }
                     }
                 }

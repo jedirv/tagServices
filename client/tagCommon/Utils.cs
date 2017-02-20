@@ -82,5 +82,17 @@ namespace TagCommon
             tags.Sort();
             return tags;
         }
+
+        public static void TagResourceForMailItem(String entryID, string resourceName)
+        {
+            String json = TagCommon.Backend.TagsForEmail(entryID);
+            TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
+            List<TagName> tags = tagNames.Tags;
+            foreach (TagName tag in tags)
+            {
+                Backend.TagResource(Utils.RESOURCE_TYPE_FILE, resourceName, tag.Name);
+            }
+        }
+
     }
 }

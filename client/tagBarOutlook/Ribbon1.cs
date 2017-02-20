@@ -99,10 +99,47 @@ namespace OutlookTagBar
             }
             */
         }
+        private bool isContextExplorer(object context)
+        {
+            try
+            {
+                Outlook.Explorer insp = (Outlook.Explorer)context;
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+        private bool isContextInspector(object context)
+        {
+            try
+            {
+                Outlook.Inspector insp = (Outlook.Inspector)context;
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+        }
         public void mySaveAttachAs(Office.IRibbonControl control, bool cancelDefault)
         {
-            //Office.IRibbonControl.Context context = control.Context;
-            
+            /*
+            var context = control.Context;
+            if (isContextInspector(context))
+            {
+                Outlook.Inspector insp = (Outlook.Inspector)context;
+                //insp.Application.
+                var currentItem = insp.CurrentItem;
+                if (currentItem is Outlook.MailItem)
+                {
+                    Outlook.MailItem mi = (Outlook.MailItem)currentItem;
+                   
+                }
+            }
+            */
+            //string typeName = GetTypeName(control);
             Outlook.Explorer explorer = Globals.OutlookTagBarAddin.Application.ActiveExplorer();
             if (explorer != null && explorer.Selection != null && explorer.Selection.Count > 0)
             {
@@ -127,7 +164,7 @@ namespace OutlookTagBar
                     System.Diagnostics.Debug.Write("resourceName : " + resourceName + "\n");
                     a.SaveAsFile(sfd.FileName);
                     Backend.AddResource(Utils.RESOURCE_TYPE_FILE, resourceName);
-                    TagResourceForMailItem(mailItem, resourceName);
+                    Utils.TagResourceForMailItem(mailItem.EntryID, resourceName);
                     //a.SaveAsFile(@"C:\Users\sudo\Downloads");
                     cancelDefault = true;
                 }
@@ -142,18 +179,63 @@ namespace OutlookTagBar
             }
             // nlog
         }
-        public void TagResourceForMailItem(Outlook.MailItem mailItem, string resourceName)
+        public static string GetTypeName(object comObj)
         {
-            String entryID = mailItem.EntryID;
-            String json = TagCommon.Backend.TagsForEmail(entryID);
-            TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
-            List<TagName> tags = tagNames.Tags;
-            foreach (TagName tag in tags)
+
+            if (comObj == null)
+                return String.Empty;
+
+            if (!Marshal.IsComObject(comObj))
+                //The specified object is not a COM object
+                return String.Empty;
+
+            IDispatch dispatch = comObj as IDispatch;
+            if (dispatch == null)
+                //The specified COM object doesn't support getting type information
+                return String.Empty;
+
+            System.Runtime.InteropServices.ComTypes.ITypeInfo typeInfo = null;
+            try
             {
-                Backend.TagResource(Utils.RESOURCE_TYPE_FILE, resourceName, tag.Name);
+                try
+                {
+                    // obtain the ITypeInfo interface from the object
+                    dispatch.GetTypeInfo(0, 0, out typeInfo);
+                }
+                catch (Exception ex)
+                {
+                    //Cannot get the ITypeInfo interface for the specified COM object
+                    return String.Empty;
+                }
+
+                string typeName = "";
+                string documentation, helpFile;
+                int helpContext = -1;
+
+                try
+                {
+                    //retrieves the documentation string for the specified type description 
+                    typeInfo.GetDocumentation(-1, out typeName, out documentation,
+                        out helpContext, out helpFile);
+                }
+                catch (Exception ex)
+                {
+                    // Cannot extract ITypeInfo information
+                    return String.Empty;
+                }
+                return typeName;
+            }
+            catch (Exception ex)
+            {
+                // Unexpected error
+                return String.Empty;
+            }
+            finally
+            {
+                if (typeInfo != null) Marshal.ReleaseComObject(typeInfo);
             }
         }
-
+ 
         #region IRibbonExtensibility Members
 
         public string GetCustomUI(string ribbonID)
@@ -196,5 +278,43 @@ namespace OutlookTagBar
         }
 
         #endregion
+    }
+    /// <summary>
+    /// Exposes objects, methods and properties to programming tools and other
+    /// applications that support Automation.
+    /// </summary>
+    [ComImport()]
+    [Guid("00020400-0000-0000-C000-000000000046")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    interface IDispatch
+    {
+        [PreserveSig]
+        int GetTypeInfoCount(out int Count);
+
+        [PreserveSig]
+        int GetTypeInfo(
+            [MarshalAs(UnmanagedType.U4)] int iTInfo,
+            [MarshalAs(UnmanagedType.U4)] int lcid,
+            out System.Runtime.InteropServices.ComTypes.ITypeInfo typeInfo);
+
+        [PreserveSig]
+        int GetIDsOfNames(
+            ref Guid riid,
+            [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)]
+            string[] rgsNames,
+            int cNames,
+            int lcid,
+            [MarshalAs(UnmanagedType.LPArray)] int[] rgDispId);
+
+        [PreserveSig]
+        int Invoke(
+            int dispIdMember,
+            ref Guid riid,
+            uint lcid,
+            ushort wFlags,
+            ref System.Runtime.InteropServices.ComTypes.DISPPARAMS pDispParams,
+            out object pVarResult,
+            ref System.Runtime.InteropServices.ComTypes.EXCEPINFO pExcepInfo,
+            IntPtr[] pArgErr);
     }
 }
