@@ -71,12 +71,14 @@ namespace WordButtonTest
         }
         private void ButtonAddTag_Click(object sender, EventArgs e)
         {
+            /*
             System.Windows.Forms.ComboBox cb = this.Controls["comboBox1"] as System.Windows.Forms.ComboBox;
             if (cb.Items.Count > 0)
             {
                 String selectionText = cb.SelectedItem.ToString();
                 AddNewButton(selectionText);
             }
+            */
         }
         public void AddNewButton(String name)
         {
@@ -112,9 +114,9 @@ namespace WordButtonTest
             newButton.FlatStyle = FlatStyle.Flat;
             newButton.FlatAppearance.BorderSize = 1;
             newButton.FlatAppearance.BorderColor = Color.DarkGray;
-            //loadPersonsMenuOnTag(newButton);
+                //loadPersonsMenuOnTag(newButton);
             LoadDocumentsMenuOnTag(newButton);
-            //persistDocumentsJson();
+                //persistDocumentsJson();
             AddMenusToButton(newButton);
             return newButton;
         }

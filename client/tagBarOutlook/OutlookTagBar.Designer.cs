@@ -33,29 +33,28 @@
             this.buttonAddTag = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // comboBoxTags
             // 
             this.comboBoxTags.FormattingEnabled = true;
-            this.comboBoxTags.Location = new System.Drawing.Point(832, 3);
+            this.comboBoxTags.Location = new System.Drawing.Point(848, 3);
             this.comboBoxTags.Name = "comboBoxTags";
             this.comboBoxTags.Size = new System.Drawing.Size(281, 21);
             this.comboBoxTags.TabIndex = 0;
             // 
             // buttonAddTag
             // 
-            this.buttonAddTag.AutoSize = true;
-            this.buttonAddTag.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
-            this.buttonAddTag.FlatAppearance.BorderSize = 3;
+            this.buttonAddTag.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
             this.buttonAddTag.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonAddTag.Image = ((System.Drawing.Image)(resources.GetObject("buttonAddTag.Image")));
             this.buttonAddTag.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.buttonAddTag.Location = new System.Drawing.Point(746, 3);
+            this.buttonAddTag.Location = new System.Drawing.Point(673, 3);
             this.buttonAddTag.Margin = new System.Windows.Forms.Padding(0);
             this.buttonAddTag.Name = "buttonAddTag";
             this.buttonAddTag.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.buttonAddTag.Size = new System.Drawing.Size(84, 29);
+            this.buttonAddTag.Size = new System.Drawing.Size(84, 24);
             this.buttonAddTag.TabIndex = 1;
             this.buttonAddTag.Text = "Add Tag";
             this.buttonAddTag.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -80,10 +79,22 @@
             this.label1.TabIndex = 3;
             this.label1.Text = "New Tag :";
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(786, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(46, 16);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Tags :";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
             // OutlookTagBar
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.SystemColors.Control;
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.buttonAddTag);
@@ -102,5 +113,6 @@
         private System.Windows.Forms.Button buttonAddTag;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }

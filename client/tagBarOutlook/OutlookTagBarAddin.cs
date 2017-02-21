@@ -20,8 +20,11 @@ namespace OutlookTagBar
         private Outlook.Explorer currentExplorer = null;
         private OutlookTagBar explorerTagBar;
         private Microsoft.Office.Tools.CustomTaskPane explorerCustomTaskPane;
-        private Outlook.MailItem mostRecentNavigatedToMailItem = null;
-
+        private GlobalTaggingContext globalTaggingContext = new GlobalTaggingContext();
+        public GlobalTaggingContext GetGlobalTaggingContext()
+        {
+            return this.globalTaggingContext;
+        }
         protected override Microsoft.Office.Core.IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
             return new Ribbon1();
@@ -64,7 +67,7 @@ namespace OutlookTagBar
             /*
              * create the explorer tagBar
              */
-            explorerTagBar = new OutlookTagBar(this, null);
+            explorerTagBar = new OutlookTagBar(this, new LocalTaggingContext(this.globalTaggingContext));
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
             explorerCustomTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
             explorerCustomTaskPane.Height = 57;
@@ -95,38 +98,54 @@ namespace OutlookTagBar
         }
         private void Inspectors_NewInspector(Microsoft.Office.Interop.Outlook.Inspector Inspector)
         {
-            // this only fires when we open a new window, not when we just single click on an email
-            if (Inspector.CurrentItem is Outlook.MailItem)
+            try
             {
-                Outlook.MailItem mailItem = Inspector.CurrentItem as Outlook.MailItem;
-                mostRecentNavigatedToMailItem = mailItem;
-                System.Diagnostics.Debug.Write("mostRecentNavigatedToMailItem " + mailItem.Subject + " \n");
-                mailItem.BeforeAttachmentSave += MailItem_BeforeAttachmentSave;
-                mailItem.BeforeAttachmentWriteToTempFile += MailItem_BeforeAttachmentWriteToTempFile;
-                mailItem.BeforeAttachmentRead += MailItem_BeforeAttachmentRead;
-                mailItem.BeforeAttachmentPreview += MailItem_BeforeAttachmentPreview;
-
-                ((Outlook.ItemEvents_10_Event)mailItem).Reply -= new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
-                ((Outlook.ItemEvents_10_Event)mailItem).Reply += new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
-
-               // ((Outlook.ItemEvents_10_Event)mailItem).Send += new Outlook.ItemEvents_10_SendEventHandler(MailItem_Send);
-                System.Diagnostics.Debug.Write("NewInspector event fired for mailItem " + mailItem.Subject + " \n");
-                
-                if (InspectorWrapper.inspectorWrappersValue.ContainsKey(Inspector))
+                // this only fires when we open a new window, not when we just single click on an email
+                if (Inspector.CurrentItem is Outlook.MailItem)
                 {
-                    System.Diagnostics.Debug.Write("SKIPPING REDUNDANT inspectorWRapper\n");
+                    Outlook.MailItem mailItem = Inspector.CurrentItem as Outlook.MailItem;
+                    this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mailItem);
+                    //mailItem.BeforeAttachmentSave += MailItem_BeforeAttachmentSave;
+                    //mailItem.BeforeAttachmentRead += MailItem_BeforeAttachmentRead;
+                    HookEventHandlersToMailItem(mailItem);
+
+
+                    // ((Outlook.ItemEvents_10_Event)mailItem).Send += new Outlook.ItemEvents_10_SendEventHandler(MailItem_Send);
+                    System.Diagnostics.Debug.Write("NewInspector event fired for mailItem " + mailItem.Subject + " \n");
+
+                    if (InspectorWrapper.inspectorWrappersValue.ContainsKey(Inspector))
+                    {
+                        System.Diagnostics.Debug.Write("SKIPPING REDUNDANT inspectorWRapper\n");
+                    }
+                    else
+                    {
+                        ((Outlook.InspectorEvents_10_Event)Inspector).Activate += new
+               Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activated);
+                        ((Outlook.InspectorEvents_10_Event)Inspector).Deactivate += new
+              Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivated); ;
+                        System.Diagnostics.Debug.Write("CREATING inspectorWrapper\n");
+                        InspectorWrapper.inspectorWrappersValue.Add(Inspector, new InspectorWrapper(this, Inspector, mailItem));
+                    }
+
                 }
-                else
-                {
-                    ((Outlook.InspectorEvents_10_Event)Inspector).Activate += new
-           Outlook.InspectorEvents_10_ActivateEventHandler(Inspector_Activated);
-                    ((Outlook.InspectorEvents_10_Event)Inspector).Deactivate += new
-          Outlook.InspectorEvents_10_DeactivateEventHandler(Inspector_Deactivated); ;
-                    System.Diagnostics.Debug.Write("CREATING inspectorWrapper\n");
-                    InspectorWrapper.inspectorWrappersValue.Add(Inspector, new InspectorWrapper(this, Inspector, mailItem));
-                }
-                
             }
+            catch(Exception e)
+            {
+                String expMessage = e.Message;
+                System.Windows.Forms.MessageBox.Show(expMessage + "\n" + e.StackTrace);
+            }
+            
+        }
+        private void HookEventHandlersToMailItem(Outlook.MailItem mailItem)
+        {
+            ((Outlook.ItemEvents_10_Event)mailItem).Reply -= new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+            ((Outlook.ItemEvents_10_Event)mailItem).Reply += new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+
+            ((Outlook.ItemEvents_10_Event)mailItem).ReplyAll -= new Outlook.ItemEvents_10_ReplyAllEventHandler(MailItem_ReplyAll);
+            ((Outlook.ItemEvents_10_Event)mailItem).ReplyAll += new Outlook.ItemEvents_10_ReplyAllEventHandler(MailItem_ReplyAll);
+
+            ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead -= new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_Read);
+            ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead += new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_Read);
         }
         /*
         private void MailItem_Send(ref bool cancel)
@@ -141,18 +160,17 @@ namespace OutlookTagBar
         }*/
         private void MailItem_Reply(Object response, ref bool cancel)
         {
-            Outlook.MailItem mailItem = (Outlook.MailItem)response;
-
-            System.Diagnostics.Debug.Write("tags for recent email: " + Backend.TagsForEmail(mostRecentNavigatedToMailItem.EntryID) + "\n");
-            string entryID = mailItem.EntryID;
-            System.Diagnostics.Debug.Write("Reply entryID is " + entryID + "\n");
-            System.Diagnostics.Debug.Write("Reply conversationID is " + mailItem.ConversationID + "\n");
-            string u = mailItem.Subject;
-
+            Outlook.MailItem mi = response as Outlook.MailItem;
+            this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mi);
+            this.globalTaggingContext.SetMostRecentEventReply();
         }
-        private void MailItem_BeforeAttachmentPreview(Outlook.Attachment Attachment, ref bool Cancel)
+        private void MailItem_ReplyAll(Object response, ref bool cancel)
         {
-            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentPreview\n");
+            this.globalTaggingContext.SetMostRecentEventReplyAll();
+        }
+        private void MailItem_Read()
+        {
+            this.globalTaggingContext.SetMostRecentEventRead();
         }
 
         private void MailItem_BeforeAttachmentRead(Outlook.Attachment Attachment, ref bool Cancel)
@@ -160,16 +178,7 @@ namespace OutlookTagBar
             System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentRead\n");
         }
 
-        private void MailItem_BeforeAttachmentWriteToTempFile(Outlook.Attachment Attachment, ref bool Cancel)
-        {
-            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentWriteToTempFile\n");
-            System.Diagnostics.Debug.Write("DisplayName " + Attachment.DisplayName + "\n");
-            System.Diagnostics.Debug.Write("FileName " + Attachment.FileName + "\n");
-            System.Diagnostics.Debug.Write("PathName " + Attachment.PathName + "\n");
-            //Outlook.MailItem mailItem = (Outlook.MailItem)Attachment.Parent;
-            //mailItem.Application.PickerDialog.
-            int x = 3;
-        }
+       
 
         private void MailItem_BeforeAttachmentSave(Outlook.Attachment Attachment, ref bool Cancel)
         {
@@ -178,6 +187,7 @@ namespace OutlookTagBar
 
         private void CurrentExplorer_SelectionChanged()
         {
+            System.Diagnostics.Debug.Write("CurrentExplorer_SelectionChanged event fired\n");
             try
             {
                 if (this.Application.ActiveExplorer().Selection.Count > 0)
@@ -187,27 +197,31 @@ namespace OutlookTagBar
                     {
 
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
-                        mostRecentNavigatedToMailItem = mailItem;
-                        System.Diagnostics.Debug.Write("mostRecentNavigatedToMailItem " + mailItem.Subject + " \n");
-                        ((Outlook.ItemEvents_10_Event)mailItem).Reply -= new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
-                        ((Outlook.ItemEvents_10_Event)mailItem).Reply += new Outlook.ItemEvents_10_ReplyEventHandler(MailItem_Reply);
+                        this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mailItem);
 
-                        explorerTagBar.SetMostRecentEmailItem(mailItem);
-                        explorerTagBar.RefreshTagButtons(mailItem);
+                        HookEventHandlersToMailItem(mailItem);
+
+                        //explorerTagBar.SetMostRecentEmailItem(mailItem);
+                        
+                        explorerTagBar.SetLocalTaggingContext(new LocalTaggingContext(this.globalTaggingContext));
                         inspectors = this.Application.Inspectors;
                         foreach (Outlook.Inspector inspector in inspectors)
                         {
                             InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
                             OutlookTagBar otb = iWrapper.getTagBar();
-                            if (inspector.CurrentItem is Outlook.MailItem)
+                            if (otb.GetTagBasisMailItem().EntryID.Equals(mailItem.EntryID))
+                            {
+                                otb.RefreshTagButtons();
+                            }
+                            /*if (inspector.CurrentItem is Outlook.MailItem)
                             {
                                 Outlook.MailItem mi = inspector.CurrentItem as Outlook.MailItem;
-                                otb.SetMostRecentEmailItem(mi);
+                                //otb.SetMostRecentEmailItem(mi);
                                 if (mi.EntryID.Equals(mailItem.EntryID))
                                 {
-                                    otb.RefreshTagButtons(mi);
+                                    otb.RefreshTagButtons();
                                 }
-                            }
+                            }*/
                         }
                         String senderName     = mailItem.Sender.Name;
                         Backend.AddPerson(Utils.NormalizeName(senderName));
@@ -219,10 +233,10 @@ namespace OutlookTagBar
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                String expMessage = ex.Message;
-                System.Windows.Forms.MessageBox.Show(expMessage);
+                String expMessage = e.Message;
+                System.Windows.Forms.MessageBox.Show(expMessage + "\n" + e.StackTrace);
             }
         }
        

@@ -134,10 +134,12 @@ namespace WordButtonTest
 
         public static void ExpressTagButtons(WordTagBar tagBar, List<String> tags)
         {
+            /*
             foreach (String tagName in tags)
             {
                 tagBar.AddNewButton(tagName);
             }
+            */
         }
     }
     public class DocumentWindowWrapper
@@ -163,6 +165,7 @@ namespace WordButtonTest
             WordTagBarAddin.ExpressTagButtons(tagBar, tags);
             System.Windows.Forms.ComboBox cb = tagBar.Controls["comboBox1"] as System.Windows.Forms.ComboBox;
 
+            /*
             cb.Items.Add("teaching\\cs500");
             cb.Items.Add("teaching\\cs501");
             cb.Items.Add("teaching\\cs502");
@@ -173,6 +176,7 @@ namespace WordButtonTest
             cb.Items.Add("teaching\\cs507");
             // cb.Items.Add("word\\tags\\control render testing\\implement remove tag");
             cb.SelectedIndex = 1;
+            */
             return taskPane;
         }
 

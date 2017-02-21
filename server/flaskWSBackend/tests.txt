@@ -6,6 +6,22 @@ DEMO
 http://127.0.0.1:5000/tagapi/addResource?resourceType=FILE&name=C:%5CUsers%5Csudo%5Cjunk.txt
 http://127.0.0.1:5000/tagapi/addResource?resourceType=FILE&name=C:%5Cfile5.docx
 
+
+
+
+
+
+
+http://127.0.0.1:5000/tagapi/addResource?resourceType=FILE&name=C:%5CUsers%5Csudo%5CDocuments%5Cdavos%5CKeysiteCandidateExperience.xlsx
+
+http://127.0.0.1:5000/tagapi/tagResource?type=FILE&name=C:%5CUsers%5Csudo%5CDocuments%5Cdavos%5CKeysiteCandidateExperience.xlsx&tag=projects%2Fkeysite
+
+
+
+
+
+
+
 DEMO
 http://127.0.0.1:5000/tagapi/addPerson?name=Alex
 http://127.0.0.1:5000/tagapi/addPerson?name=Joe
@@ -31,6 +47,8 @@ http://127.0.0.1:5000/tagapi/tagResource?type=URL&name=www.amazon.com&tag=tag3  
 http://127.0.0.1:5000/tagapi/tagResource?type=URL&name=www.amazon.com&tag=tag6  #should work
 http://127.0.0.1:5000/tagapi/tagResource?type=URL&name=www.amazon.com&tag=tag20 #fail with bad tag
 http://127.0.0.1:5000/tagapi/tagResource?type=URL&name=www.amazon2.com&tag=tag6 #fail with bad url
+
+
 
 http://127.0.0.1:5000/tagapi/tagResource?type=FILE&name=C:%5CUsers%5Csudo%5Cjunk.txt&tag=tagX
 

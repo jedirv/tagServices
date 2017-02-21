@@ -35,7 +35,7 @@ namespace OutlookTagBar
                 new Outlook.InspectorEvents_CloseEventHandler(InspectorWrapper_Close);
 
             System.Diagnostics.Debug.Write("ADDING taskPane (inspectorTagBar)\n");
-            inspectorTagBar = new OutlookTagBar(addin, mailItem);
+            inspectorTagBar = new OutlookTagBar(addin, new LocalTaggingContext(addin.GetGlobalTaggingContext()));
             inspectorTagBar.LoadTagList(Utils.GetLatestTagList());
             taskPane = Globals.OutlookTagBarAddin.CustomTaskPanes.Add(inspectorTagBar, "Inspector Tag Bar", this.inspector);
             taskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
@@ -44,9 +44,12 @@ namespace OutlookTagBar
             taskPane.VisibleChanged += new EventHandler(TaskPane_VisibleChanged);
             if (mailItem != null)
             {
-                inspectorTagBar.SetMostRecentEmailItem(mailItem);
-                //inspectorTagBar.RemoveAllTagButtons();
-                inspectorTagBar.ExpressTagButtonsFromBackend(mailItem);
+                if (null != mailItem.EntryID)
+                {
+                    //inspectorTagBar.SetMostRecentEmailItem(mailItem);
+                    //inspectorTagBar.RemoveAllTagButtons();
+            //        inspectorTagBar.ExpressTagButtonsFromBackend(mailItem);
+                }
             }
         }
         public OutlookTagBar getTagBar()

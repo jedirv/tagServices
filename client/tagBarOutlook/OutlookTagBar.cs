@@ -21,32 +21,80 @@ namespace OutlookTagBar
     {
         private static int tagBarIDSource = 0;
         private int tagBarID = -1;
-        public OutlookTagBar(OutlookTagBarAddin addin, Outlook.MailItem mailItem)
+        private LocalTaggingContext localTaggingContext = null;
+        public OutlookTagBar(OutlookTagBarAddin addin, LocalTaggingContext context)
         {
+            
             this.addin = addin;
             InitializeComponent();
             tagBarID = tagBarIDSource;
             tagBarIDSource += 1;
+            SetLocalTaggingContext(context);
+        }
+        public void SetLocalTaggingContext(LocalTaggingContext context)
+        {
+            this.localTaggingContext = context;
+            if (context.isRead())
+            {
+                SetTagBasisMailItem(context.GetEmailBeingRead());
+                RefreshTagButtons();
+            }
+            else if (context.isReply())
+            {
+                SetTagBasisMailItem(context.GetEmailBeingRepliedTo());
+                RefreshTagButtons();
+            }
+            else if (context.isExplorerInit())
+            {
+
+            }
+            else if (context.isCompose())
+            {
+                throw new TagServicesException("isCompose case Not Yet Implemented for OutlookTag Bar");
+            }
+            /*
+            if (null != mailItem)
+            {
+                if ("".Equals(mailItem.EntryID) || null == mailItem.EntryID)
+                {
+                    // Reply case - entryID not yet set, need to load tag based on email we are replying to
+                    Outlook.MailItem replyBasisMailItem = this.addin.GetMostRecentNavigatedToMailItemWithEntryID();
+                    if (null != replyBasisMailItem)
+                    {
+                        System.Diagnostics.Debug.Write("replyBasisMailItem has " + replyBasisMailItem.Subject + " " + replyBasisMailItem.EntryID + NL);
+                        RefreshTagButtons(replyBasisMailItem);
+                    }
+                     
+                }
+            }*/
         }
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
         private OutlookTagBarAddin addin;
-        private Outlook.MailItem mostRecentMailItem;  
+        private Outlook.MailItem tagBasisMailItem;  
 
+        public Outlook.MailItem GetTagBasisMailItem()
+        {
+            return this.tagBasisMailItem;
+        }
+        public void SetTagBasisMailItem(Outlook.MailItem mi)
+        {
+            this.tagBasisMailItem = mi;
+        }
         private void Button1_Click(object sender, EventArgs e)
         {
 
         }
 
-        public void SetMostRecentEmailItem(Outlook.MailItem mailItem)
-        {
-            System.Diagnostics.Debug.Write("tagBar " + tagBarID + " now has email " + mailItem.EntryID + " with subject " + mailItem.Subject + NL);
-            this.mostRecentMailItem = mailItem;
-        }
-        private Outlook.MailItem GetMostRecentEmailItem()
-        {
-            return this.mostRecentMailItem;
-        }
+        //public void SetMostRecentEmailItem(Outlook.MailItem mailItem)
+        //{
+        //    System.Diagnostics.Debug.Write("tagBar " + tagBarID + " now has email " + mailItem.EntryID + " with subject " + mailItem.Subject + NL);
+        //    this.mostRecentMailItem = mailItem;
+        //}
+        //private Outlook.MailItem GetMostRecentEmailItem()
+        //{
+        //    return this.mostRecentMailItem;
+        //}
         public void TagButton_Click(object sender, EventArgs e)
         {
             Button clickedButton = sender as Button;
@@ -54,7 +102,7 @@ namespace OutlookTagBar
             MouseEventArgs mea = e as MouseEventArgs;
             if (mea.Location.X <= imageWidth)
             {
-                OutlookTagUtils.RemoveTagFromEmail(clickedButton.Text, GetMostRecentEmailItem(), this.addin.InPlayApplication, this.addin.ExplorerTagBar);
+                OutlookTagUtils.RemoveTagFromEmail(clickedButton.Text, localTaggingContext.GetTagNameSourceMailItem(), this.addin.InPlayApplication, this.addin.ExplorerTagBar);
             }
         }
 
@@ -86,21 +134,53 @@ namespace OutlookTagBar
             }
             return false;
         }
-        public void RefreshTagButtons(Outlook.MailItem mailItem)
+        /*public void RefreshTagButtons(LocalTaggingContext localTaggingContext)
         {
+            this.localTaggingContext = localTaggingContext;
+            System.Diagnostics.Debug.Write("calling RefreshTagButtons CHANGE context on OTB " + this.tagBarID + NL);
             RemoveAllTagButtons();
-            ExpressTagButtonsFromBackend(mailItem);
-        }
-        public void ExpressTagButtonsFromBackend(Outlook.MailItem mailItem)
+            ExpressTagButtonsFromBackend(localTaggingContext);
+        }*/
+        public void RefreshTagButtons()
         {
-            String entryID = mailItem.EntryID;
-            String json = TagCommon.Backend.TagsForEmail(entryID);
-            TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
-            List<TagName> tags = tagNames.Tags;
-            foreach (TagName tag in tags)
+            System.Diagnostics.Debug.Write("calling RefreshTagButtons KEEP context on OTB " + this.tagBarID + NL);
+            RemoveAllTagButtons();
+            ExpressTagButtonsFromBackend(this.localTaggingContext);
+        }
+        public void ExpressTagButtonsFromBackend(LocalTaggingContext localTaggingContext)
+        {
+            if (localTaggingContext.isRead())
             {
-                AddNewButton(tag.Name, mailItem);
+                string entryID = localTaggingContext.GetEmailBeingRead().EntryID;
+                string json = TagCommon.Backend.TagsForEmail(entryID);
+                TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
+                List<TagName> tags = tagNames.Tags;
+                foreach (TagName tag in tags)
+                {
+                    AddNewButton(tag.Name, localTaggingContext);
+                }
             }
+            else if (localTaggingContext.isReply())
+            {
+                string entryID = localTaggingContext.GetEmailBeingRepliedTo().EntryID;
+                string json = TagCommon.Backend.TagsForEmail(entryID);
+                TagNames tagNames = TagCommon.Utils.GetTagNamesForJson(json);
+                List<TagName> tags = tagNames.Tags;
+                foreach (TagName tag in tags)
+                {
+                    AddNewButton(tag.Name, localTaggingContext);
+                }
+            }
+            else if (localTaggingContext.isExplorerInit())
+            {
+                // skip it - the CurrentExplorer_SelectionChanged event will trigger the refresh in a bit 
+            }
+            else if (localTaggingContext.isCompose())
+            {
+                throw new TagServicesException("refreshTagButtons not implemented for Compose state");
+            }
+
+
         }
         private void ButtonAddTag_Click(object sender, EventArgs e)
         {
@@ -108,7 +188,7 @@ namespace OutlookTagBar
             if (cb.Items.Count > 0)
             {
                 String tag = cb.SelectedItem.ToString();
-                Outlook.MailItem mi = GetMostRecentEmailItem();
+                Outlook.MailItem mi = this.localTaggingContext.GetTagNameSourceMailItem();
                 OutlookTagUtils.AddTagToEmail(tag, mi, this.addin.InPlayApplication, this.addin.ExplorerTagBar);
             }
         }
@@ -131,11 +211,15 @@ namespace OutlookTagBar
                 PositionButtons();
             }
         }
-        public void AddNewButton(String name, Outlook.MailItem mailItem)
+        public void AddNewButton(string name)
+        {
+            AddNewButton(name, this.localTaggingContext);
+        }
+        public void AddNewButton(String name, LocalTaggingContext localTaggingContext)
         {
             if (!IsButtonAlreadyPresent(name))
             {
-                Button newButton = CreateButton(name, mailItem);
+                Button newButton = CreateButton(name, localTaggingContext);
                 this.Controls.Add(newButton);
                 tagButtons.Add(newButton);
                 PositionButtons();
@@ -149,7 +233,7 @@ namespace OutlookTagBar
             }
             tagButtons.Clear();
         }
-        public Button CreateButton(String text, Outlook.MailItem mailItem)
+        public Button CreateButton(String text, LocalTaggingContext localTaggingContext)
         {
             Button newButton = new Button();
             newButton.Image = Image.FromFile("C:\\Users\\sudo\\Downloads\\Close_icon-16-square.png");
@@ -166,8 +250,18 @@ namespace OutlookTagBar
             newButton.FlatAppearance.BorderSize = 1;
             newButton.FlatAppearance.BorderColor = Color.DarkGray;
             //addMenusToButtonFromStub(newButton);
-            AddMenusToButtonFromBackend(newButton, mailItem);
-            AddAttachmentsMenu(newButton, mailItem);
+            if (localTaggingContext.isReply())
+            {
+                AddMenusToButtonFromBackend(newButton, localTaggingContext.GetReplyEmail());
+            }
+            else if (localTaggingContext.isRead())
+            {
+                AddAttachmentsMenu(newButton, localTaggingContext.GetEmailBeingRead());
+            }
+            else
+            {
+                throw new TagServicesException("create tag button only implemented for read, reply so far");
+            }
             return newButton;
         }
         private void AddAttachmentsMenu(Button b, Outlook.MailItem mailItem)
@@ -359,6 +453,11 @@ namespace OutlookTagBar
             if (cb.Items.Count > 0) {
                 cb.SelectedIndex = 0;
             }
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
     public class MailItemAttachment

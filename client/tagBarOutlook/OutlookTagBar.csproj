@@ -156,6 +156,7 @@
   -->
   <ItemGroup>
     <Compile Include="CategoryUtils.cs" />
+    <Compile Include="GlobalTaggingContext.cs" />
     <Compile Include="InspectorWrapper.cs" />
     <Compile Include="OutlookTagBar.cs">
       <SubType>UserControl</SubType>
@@ -168,6 +169,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Ribbon1.cs" />
+    <Compile Include="LocalTaggingContext.cs" />
     <EmbeddedResource Include="OutlookTagBar.resx">
       <DependentUpon>OutlookTagBar.cs</DependentUpon>
     </EmbeddedResource>
