@@ -14,6 +14,7 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools;
 using TagCommon;
+using System.Diagnostics;
 
 namespace OutlookTagBar
 {
@@ -115,7 +116,7 @@ namespace OutlookTagBar
                 {
                     int width = button.Size.Width;
                     System.Diagnostics.Debug.Write("curOriginX " + curOriginX + " originY " + 0 + " width " + width + NL);
-                    Point newLocation = new Point(curOriginX, 0);
+                    System.Drawing.Point newLocation = new System.Drawing.Point(curOriginX, 0);
                     button.Location = newLocation;
                     curOriginX += width;
                     curOriginX += 5;
@@ -309,11 +310,19 @@ namespace OutlookTagBar
                 {
                     ToolStripMenuItem attachmentItem = new ToolStripMenuItem();
                     attachmentItem.Text = att.DisplayName;
+
                     ToolStripMenuItem saveAttachmentItem = new ToolStripMenuItem();
                     saveAttachmentItem.Text = "Save";
                     saveAttachmentItem.Tag = new MailItemAttachment(mailItem, att);
                     saveAttachmentItem.Click += new System.EventHandler(this.SaveAttachmentMenuItem_Click);
                     attachmentItem.DropDownItems.Add(saveAttachmentItem);
+
+                    ToolStripMenuItem saveAndOpenAttachmentItem = new ToolStripMenuItem();
+                    saveAndOpenAttachmentItem.Text = "Save and Open";
+                    saveAndOpenAttachmentItem.Tag = new MailItemAttachment(mailItem, att);
+                    saveAndOpenAttachmentItem.Click += new System.EventHandler(this.SaveAndOpenAttachmentMenuItem_Click);
+                    attachmentItem.DropDownItems.Add(saveAndOpenAttachmentItem);
+
                     attachmentsItem.DropDownItems.Add(attachmentItem);
                 }
             }
@@ -345,6 +354,28 @@ namespace OutlookTagBar
                 }
             }
         }
+        private string ShowDialogAndGetPath(ToolStripMenuItem menuItem, Outlook.Attachment att)
+        {
+            String attachmentName = att.DisplayName;
+            System.Diagnostics.Debug.Write("saving attachment : " + attachmentName + NL);
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Title = "Save Attachment";
+            sfd.FileName = att.FileName;
+            sfd.Filter = "All files(*.*) | *.*";
+            sfd.DefaultExt = System.IO.Path.GetExtension(att.FileName);
+
+            sfd.ShowDialog();
+            String resourceName = sfd.FileName;
+            return resourceName;
+        }
+        private void SaveAndTagFile(string resourceName, Outlook.Attachment att, string entryID)
+        {
+            System.Diagnostics.Debug.Write("resourceName : " + resourceName + "\n");
+            att.SaveAsFile(resourceName);
+            Backend.AddResource(Utils.RESOURCE_TYPE_FILE, resourceName);
+            Utils.TagResourceForMailItem(entryID, resourceName);
+        }
+        
         public void SaveAttachmentMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
@@ -353,26 +384,27 @@ namespace OutlookTagBar
                 MailItemAttachment mia = (MailItemAttachment)senderMenuItem.Tag;
                 Outlook.MailItem mailItem = mia.GetMailItem();
                 Outlook.Attachment att = mia.GetAttachment();
-                String attachmentName = att.DisplayName;
-                System.Diagnostics.Debug.Write("saveing attachment : " + attachmentName + NL);
-                SaveFileDialog sfd = new SaveFileDialog();
-                sfd.Title = "Save Attachment";
-                sfd.FileName = att.FileName;
-                sfd.Filter = "All files(*.*) | *.*";
-                sfd.DefaultExt = System.IO.Path.GetExtension(att.FileName);
-
-                sfd.ShowDialog();
-                String resourceName = sfd.FileName;
-
-                System.Diagnostics.Debug.Write("resourceName : " + resourceName + "\n");
-                att.SaveAsFile(sfd.FileName);
-                Backend.AddResource(Utils.RESOURCE_TYPE_FILE, resourceName);
-                Utils.TagResourceForMailItem(mailItem.EntryID, resourceName);
+                string resourceName = ShowDialogAndGetPath(senderMenuItem, att);
+                SaveAndTagFile(resourceName, att, mailItem.EntryID);
+            }
+        }
+       
+        public void SaveAndOpenAttachmentMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
+            if (senderMenuItem != null)
+            {
+                MailItemAttachment mia = (MailItemAttachment)senderMenuItem.Tag;
+                Outlook.MailItem mailItem = mia.GetMailItem();
+                Outlook.Attachment att = mia.GetAttachment();
+                string resourceName = ShowDialogAndGetPath(senderMenuItem, att);
+                SaveAndTagFile(resourceName, att, mailItem.EntryID);
+                Process.Start(resourceName);
             }
         }
         private void AddMenusFromJson(Button b, String json, Outlook.MailItem mailItem)
         {
-            Documents docs = TagCommon.Utils.GetDocumentsForJson(json);
+            TagCommon.Documents docs = TagCommon.Utils.GetDocumentsForJson(json);
             List<DocumentInfo> relevantDocs = docs.RelevantDocuments;
             List<DocumentInfo> mruDocs = docs.MruDocuments;
 
