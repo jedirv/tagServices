@@ -1,0 +1,9 @@
+1. clean out prior categories or just send in enough emails that they scroll out of view
+1.5 save and open option, then launch
+2. remove x from Add tag
+3. select from tag list to tag message
+4. AddTag is label for tagList
+5. No attachments greyed
+6. hide mru for documents for demo
+
+webex rehearse

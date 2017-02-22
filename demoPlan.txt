@@ -1,0 +1,92 @@
+DEMO PREP
+1.Michael will prepare two documents - one excel and one word
+
+2.Michael will send (at least) five emails to Davos Stark.  Two of the emails will relate to one of the projects tags. One email will have an excel file attached that will need to be returned later.  The other one will have the word file that I save during the demo
+
+3. Michael will specify four tags, something along the lines of:
+    projects/keysite
+    projects/ppaml
+    osu
+    shopping
+    
+4. Jed will open each email, which will call 
+    backend.addEmail  (using entryID for now)
+    backend.addPerson  (which will noop if person exists)
+    
+5. foreach email, Jed will create the relevant single tag, which will 
+    backend.addTag 
+    backend.tagEmail
+    backend.tagPerson
+    copy the tag into MailItems.category field 
+    
+6. for the email with an excel attachment, after tags have been associated, Jed will save that attachment
+    backend.addResource
+    backend.tagResource
+    
+7. actionable email will contain a word file attachment and say something like:
+    "here's the report draft.  update it and send back with updated excel file"
+
+
+DEMO PLAN
+https://keysight.webex.com/join/stan_jeffersonkeysight.com   |  820 758 543
+
+Join by phone
++1 4174299189 US Toll
+8444191675 US Toll Free
+Access code: 820 758 543
+Global call-in numbers  |  Toll-free calling restrictions
+
+(oregonstate.webex.com if I need to start meeting)
+
+Jed desktop will run the demo
+Tom introduces
+Jed will do demo, using Davos Stark account
+
+Demo script:
+
+1. browse through emails, showing tags and categories
+
+2. for a couple of those, open the menus on the tag and show the landscape
+
+3. open the actionable email
+
+4. on the actionable email, show that the attached file is in the menu
+
+5. save the word attachment
+    backend.addResource
+    backend.tagResource
+    
+6. open the file in word, change something, save it.
+
+7. in outlook, go back to actionable email and hit "reply"
+
+8. show that the revised file is now visible under the tag->documents menu
+
+9. click tag->documents->(worddocname)->attach
+    add attachment directly to the reply message (rather than via file browser)
+
+10. click tag->documents->(exceldocname)->attach
+    add attachment directly to the reply message (rather than via file browser)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,60 @@
+PART 1
+
+This is what Outlook 2016 looks like - simlar to previous versions
+
+TagBar - place where all tag related operations happen.  
+
+drop down list on the right holds existing tags
+
+Create Tag widget on the left
+
+In the middle is a tag that is already associated with the current email message
+
+the tag is synchronized with the native outlook categories feature
+
+can use the tag list to add other tags to the email (show, then delete)
+
+can untag an email by clicking the red X
+
+as we select different emails, we see tags associated if any
+
+
+
+PART 2
+
+We're going to go through a particular use case, first how it's done 
+normally, and then how we can do it with tag support
+
+Normal way:
+    read the email
+    save off the email using attachment SaveAs
+    open new explorer
+    navigate to downloads\keysiteDemo folder
+    double click on file to open word doc
+    change word doc
+    save it
+    
+    go to outlook and click reply
+    click attach file
+    navigate to keysite demo folder and select
+    but then need other file, so 
+    click attach file
+    navitage to C:\Users\sudo\Documents\davos\  and add KeysiteCandidateExperience.xlsx
+    now ready to send.
+    
+Now let's try with tags
+    tag->attachments->save and open
+    change the word doc
+    save it
+    
+    go to outlook and click reply
+    now right click on tag shows documents associated with tag
+    can add both files this way without browsing
+    
+    in the future we will be able to do the following from within Word, after changing the document
+        tag->send document as reply
+             which will initiate a reply in outlook, and attach the document.  
+        then, once we go back to outlook, we can add the other file via the attachment.
+        
+        
+    
