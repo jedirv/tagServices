@@ -28,9 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OutlookTagBar));
             this.comboBoxTags = new System.Windows.Forms.ComboBox();
-            this.buttonAddTag = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -39,31 +37,15 @@
             // comboBoxTags
             // 
             this.comboBoxTags.FormattingEnabled = true;
-            this.comboBoxTags.Location = new System.Drawing.Point(848, 3);
+            this.comboBoxTags.Location = new System.Drawing.Point(710, 4);
             this.comboBoxTags.Name = "comboBoxTags";
             this.comboBoxTags.Size = new System.Drawing.Size(281, 21);
             this.comboBoxTags.TabIndex = 0;
-            // 
-            // buttonAddTag
-            // 
-            this.buttonAddTag.FlatAppearance.BorderColor = System.Drawing.Color.DarkGray;
-            this.buttonAddTag.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonAddTag.Image = ((System.Drawing.Image)(resources.GetObject("buttonAddTag.Image")));
-            this.buttonAddTag.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.buttonAddTag.Location = new System.Drawing.Point(673, 3);
-            this.buttonAddTag.Margin = new System.Windows.Forms.Padding(0);
-            this.buttonAddTag.Name = "buttonAddTag";
-            this.buttonAddTag.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.buttonAddTag.Size = new System.Drawing.Size(84, 24);
-            this.buttonAddTag.TabIndex = 1;
-            this.buttonAddTag.Text = "Add Tag";
-            this.buttonAddTag.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.buttonAddTag.UseVisualStyleBackColor = true;
-            this.buttonAddTag.Click += new System.EventHandler(this.ButtonAddTag_Click);
+            this.comboBoxTags.SelectedValueChanged += new System.EventHandler(this.AddTag_Click);
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(1213, 3);
+            this.textBox1.Location = new System.Drawing.Point(88, 7);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(158, 20);
             this.textBox1.TabIndex = 2;
@@ -73,35 +55,36 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(1135, 4);
+            this.label1.Location = new System.Drawing.Point(3, 8);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(72, 17);
+            this.label1.Size = new System.Drawing.Size(79, 17);
             this.label1.TabIndex = 3;
-            this.label1.Text = "New Tag :";
+            this.label1.Text = "Create Tag";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(786, 5);
+            this.label2.Location = new System.Drawing.Point(643, 8);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(46, 16);
+            this.label2.Size = new System.Drawing.Size(61, 16);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Tags :";
+            this.label2.Text = "Add Tag";
             this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // OutlookTagBar
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.buttonAddTag);
             this.Controls.Add(this.comboBoxTags);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "OutlookTagBar";
-            this.Size = new System.Drawing.Size(1400, 38);
+            this.Size = new System.Drawing.Size(994, 30);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -110,7 +93,6 @@
         #endregion
 
         private System.Windows.Forms.ComboBox comboBoxTags;
-        private System.Windows.Forms.Button buttonAddTag;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;

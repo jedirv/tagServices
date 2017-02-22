@@ -182,14 +182,17 @@ namespace OutlookTagBar
 
 
         }
-        private void ButtonAddTag_Click(object sender, EventArgs e)
+        private void AddTag_Click(object sender, EventArgs e)
         {
             ComboBox cb = this.Controls["comboBoxTags"] as ComboBox;
             if (cb.Items.Count > 0)
             {
                 String tag = cb.SelectedItem.ToString();
-                Outlook.MailItem mi = this.localTaggingContext.GetTagNameSourceMailItem();
-                OutlookTagUtils.AddTagToEmail(tag, mi, this.addin.InPlayApplication, this.addin.ExplorerTagBar);
+                if (!"".Equals(tag))
+                {
+                    Outlook.MailItem mi = this.localTaggingContext.GetTagNameSourceMailItem();
+                    OutlookTagUtils.AddTagToEmail(tag, mi, this.addin.InPlayApplication, this.addin.ExplorerTagBar);
+                }
             }
         }
        
@@ -272,35 +275,53 @@ namespace OutlookTagBar
                 menuStrip = new ContextMenuStrip();
                 b.ContextMenuStrip = menuStrip;
             }
-            ToolStripMenuItem attachmentsItem = new ToolStripMenuItem();
-            attachmentsItem.Text = "Attachments";
-            menuStrip.Items.Add(attachmentsItem);
             Outlook.Attachments attachments = mailItem.Attachments;
-
-            // make the save all attachments item and pass info through Tag
-            ToolStripMenuItem saveAllAttachmentItem = new ToolStripMenuItem();
-            saveAllAttachmentItem.Text = "Save All";
-            saveAllAttachmentItem.Click += new System.EventHandler(this.SaveAllAttachmentsMenuItem_Click);
-            MailItemAttachments mias = new MailItemAttachments();
-            foreach (Outlook.Attachment att in attachments)
+            if (attachments.Count == 0)
             {
-                mias.Add(new MailItemAttachment(mailItem, att));
+                ToolStripMenuItem noAttachmentsItem = new ToolStripMenuItem();
+                noAttachmentsItem.Text = "(No Attachments)";
+                noAttachmentsItem.ForeColor = Color.DarkGray;
+                noAttachmentsItem.Enabled = true;
+                noAttachmentsItem.Click += new System.EventHandler(this.NoAttachmentsMenuItem_Click);
+                menuStrip.Items.Add(noAttachmentsItem);
             }
-            saveAllAttachmentItem.Tag = mias;
-            attachmentsItem.DropDownItems.Add(saveAllAttachmentItem);
-
-            // make an entry for each attachment to be saved individually and pass info through Tag
-            foreach (Outlook.Attachment att in attachments)
+            else
             {
-                ToolStripMenuItem attachmentItem = new ToolStripMenuItem();
-                attachmentItem.Text = att.DisplayName;
-                ToolStripMenuItem saveAttachmentItem = new ToolStripMenuItem();
-                saveAttachmentItem.Text = "Save";
-                saveAttachmentItem.Tag = new MailItemAttachment(mailItem, att);
-                saveAttachmentItem.Click += new System.EventHandler(this.SaveAttachmentMenuItem_Click);
-                attachmentItem.DropDownItems.Add(saveAttachmentItem);
-                attachmentsItem.DropDownItems.Add(attachmentItem);
+                ToolStripMenuItem attachmentsItem = new ToolStripMenuItem();
+                attachmentsItem.Text = "Attachments";
+                menuStrip.Items.Add(attachmentsItem);
+
+
+                // make the save all attachments item and pass info through Tag
+                ToolStripMenuItem saveAllAttachmentItem = new ToolStripMenuItem();
+                saveAllAttachmentItem.Text = "Save All";
+                saveAllAttachmentItem.Click += new System.EventHandler(this.SaveAllAttachmentsMenuItem_Click);
+                MailItemAttachments mias = new MailItemAttachments();
+                foreach (Outlook.Attachment att in attachments)
+                {
+                    mias.Add(new MailItemAttachment(mailItem, att));
+                }
+                saveAllAttachmentItem.Tag = mias;
+                attachmentsItem.DropDownItems.Add(saveAllAttachmentItem);
+
+                // make an entry for each attachment to be saved individually and pass info through Tag
+                foreach (Outlook.Attachment att in attachments)
+                {
+                    ToolStripMenuItem attachmentItem = new ToolStripMenuItem();
+                    attachmentItem.Text = att.DisplayName;
+                    ToolStripMenuItem saveAttachmentItem = new ToolStripMenuItem();
+                    saveAttachmentItem.Text = "Save";
+                    saveAttachmentItem.Tag = new MailItemAttachment(mailItem, att);
+                    saveAttachmentItem.Click += new System.EventHandler(this.SaveAttachmentMenuItem_Click);
+                    attachmentItem.DropDownItems.Add(saveAttachmentItem);
+                    attachmentsItem.DropDownItems.Add(attachmentItem);
+                }
             }
+            
+        }
+        public void NoAttachmentsMenuItem_Click(object sender, EventArgs e)
+        {
+            // NOOP
         }
         public void SaveAllAttachmentsMenuItem_Click(object sender, EventArgs e)
         {
@@ -366,7 +387,7 @@ namespace OutlookTagBar
                 pdfItem.DropDownItems.Add(item);
                 AttachOpenAndAttachMenusToDocName(item, di.Name, mailItem);
             }
-            if (relevantDocs.Count > 0 && mruDocs.Count > 0)
+            /*if (relevantDocs.Count > 0 && mruDocs.Count > 0)
             {
                 ToolStripSeparator sep = new ToolStripSeparator();
                 pdfItem.DropDownItems.Add(sep);
@@ -380,6 +401,7 @@ namespace OutlookTagBar
                 pdfItem.DropDownItems.Add(item);
                 AttachOpenAndAttachMenusToDocName(item, di.Name, mailItem);
             }
+            */
             menuStrip.Items.Add(pdfItem);
             b.ContextMenuStrip = menuStrip;
         }
@@ -409,6 +431,7 @@ namespace OutlookTagBar
             item.DropDownItems.Add(attach);
             item.DropDownItems.Add(open);
         }
+
         public void AttachFileMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
@@ -420,6 +443,7 @@ namespace OutlookTagBar
                 mi.Attachments.Add(path, Outlook.OlAttachmentType.olByValue, System.Reflection.Missing.Value, Path.GetFileName(path));
             }
         }
+
         public void OpenFileMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
@@ -429,7 +453,6 @@ namespace OutlookTagBar
                 System.Diagnostics.Debug.Write("opening file : " + path + NL);
             }
         }
-
 
         private void NewTagKeyPress(object sender, KeyPressEventArgs e)
         {
@@ -441,11 +464,11 @@ namespace OutlookTagBar
             }
         }
 
-
         public void LoadTagList(List<String> latestTags)
         {
             ComboBox cb = this.Controls["comboBoxTags"] as ComboBox;
             cb.Items.Clear();
+            cb.Items.Add("");
             foreach (String tag in latestTags)
             {
                 cb.Items.Add(tag);
