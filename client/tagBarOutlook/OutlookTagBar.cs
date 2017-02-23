@@ -496,6 +496,8 @@ namespace OutlookTagBar
             {
                 case '\r':
                     OutlookTagUtils.CreateNewTag(((TextBox)sender).Text, this.addin.Application, this.addin.ExplorerTagBar);
+                    TextBox tb = sender as TextBox;
+                    tb.Text = "";
                     break;
             }
         }
