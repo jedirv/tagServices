@@ -48,6 +48,7 @@ namespace OutlookTagBar
             }
             System.Diagnostics.Debug.Write("$$$ context " + contextID +  " state " + state + " \n");
         }
+        
         public Outlook.MailItem GetTagNameSourceMailItem()
         {
             if (isReply())
@@ -89,6 +90,7 @@ namespace OutlookTagBar
         }
         public bool isReply()
         {
+            
             if (state == State.Reply)
             {
                 return true;

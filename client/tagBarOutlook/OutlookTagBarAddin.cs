@@ -67,7 +67,7 @@ namespace OutlookTagBar
             /*
              * create the explorer tagBar
              */
-            explorerTagBar = new OutlookTagBar(this, new LocalTaggingContext(this.globalTaggingContext));
+            explorerTagBar = new OutlookTagBar(this, new LocalTaggingContext(this.globalTaggingContext), true);
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
             explorerCustomTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
             explorerCustomTaskPane.Height = 57;
@@ -144,9 +144,13 @@ namespace OutlookTagBar
             ((Outlook.ItemEvents_10_Event)mailItem).ReplyAll -= new Outlook.ItemEvents_10_ReplyAllEventHandler(MailItem_ReplyAll);
             ((Outlook.ItemEvents_10_Event)mailItem).ReplyAll += new Outlook.ItemEvents_10_ReplyAllEventHandler(MailItem_ReplyAll);
 
-            ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead -= new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_Read);
-            ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead += new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_Read);
+           // ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead -= new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_BeforeRead);
+           // ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead += new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_BeforeRead);
+
+            ((Outlook.ItemEvents_10_Event)mailItem).Read -= new Outlook.ItemEvents_10_ReadEventHandler(MailItem_Read);
+            ((Outlook.ItemEvents_10_Event)mailItem).Read += new Outlook.ItemEvents_10_ReadEventHandler(MailItem_Read);
         }
+    
         /*
         private void MailItem_Send(ref bool cancel)
         {
@@ -168,11 +172,14 @@ namespace OutlookTagBar
         {
             this.globalTaggingContext.SetMostRecentEventReplyAll();
         }
+        //private void MailItem_BeforeRead()
+        //{
+        //    this.globalTaggingContext.SetMostRecentEventRead();
+       // }
         private void MailItem_Read()
         {
             this.globalTaggingContext.SetMostRecentEventRead();
         }
-
         private void MailItem_BeforeAttachmentRead(Outlook.Attachment Attachment, ref bool Cancel)
         {
             System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentRead\n");

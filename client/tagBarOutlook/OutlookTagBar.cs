@@ -23,35 +23,56 @@ namespace OutlookTagBar
         private static int tagBarIDSource = 0;
         private int tagBarID = -1;
         private LocalTaggingContext localTaggingContext = null;
-        public OutlookTagBar(OutlookTagBarAddin addin, LocalTaggingContext context)
+        private bool isExplorer = false;
+        private bool allowContextUpdates = true;
+        public OutlookTagBar(OutlookTagBarAddin addin, LocalTaggingContext context, bool isExplorer)
         {
-            
+            this.isExplorer = isExplorer;
             this.addin = addin;
             InitializeComponent();
             tagBarID = tagBarIDSource;
             tagBarIDSource += 1;
             SetLocalTaggingContext(context);
         }
+        public void Status(String s)
+        {
+            TextBox tb = this.Controls["textBox1"] as TextBox;
+            tb.Text = s;
+        }
         public void SetLocalTaggingContext(LocalTaggingContext context)
         {
+            if (!this.allowContextUpdates)
+            {
+                return;
+            }
             this.localTaggingContext = context;
+            
             if (context.isRead())
             {
                 SetTagBasisMailItem(context.GetEmailBeingRead());
                 RefreshTagButtons();
+                Status("read...");
             }
             else if (context.isReply())
             {
                 SetTagBasisMailItem(context.GetEmailBeingRepliedTo());
                 RefreshTagButtons();
+                Status("reply...");
             }
             else if (context.isExplorerInit())
             {
-
+                Status("expl init...");
             }
             else if (context.isCompose())
             {
                 throw new TagServicesException("isCompose case Not Yet Implemented for OutlookTag Bar");
+            }
+            if (this.isExplorer)
+            {
+                if (context.isRead())
+                {
+                    this.allowContextUpdates = false;
+                }
             }
             /*
             if (null != mailItem)

@@ -35,7 +35,7 @@ namespace OutlookTagBar
                 new Outlook.InspectorEvents_CloseEventHandler(InspectorWrapper_Close);
 
             System.Diagnostics.Debug.Write("ADDING taskPane (inspectorTagBar)\n");
-            inspectorTagBar = new OutlookTagBar(addin, new LocalTaggingContext(addin.GetGlobalTaggingContext()));
+            inspectorTagBar = new OutlookTagBar(addin, new LocalTaggingContext(addin.GetGlobalTaggingContext()), false);
             inspectorTagBar.LoadTagList(Utils.GetLatestTagList());
             taskPane = Globals.OutlookTagBarAddin.CustomTaskPanes.Add(inspectorTagBar, "Inspector Tag Bar", this.inspector);
             taskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;

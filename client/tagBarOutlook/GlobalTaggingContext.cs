@@ -85,11 +85,13 @@ namespace OutlookTagBar
         {
             if (mostRecentEvent == Event.Reply)
             {
+                System.Diagnostics.Debug.Write("### GLOBAL was reply due to most recentEvent == Event.Reply\n");
                 return true;
             }
             string entryID = mostRecentNavigatedToMailItem.EntryID;
             if (null == entryID || "".Equals(entryID))
             {
+                System.Diagnostics.Debug.Write("### GLOBAL was reply due to EntryID\n");
                 return true;
             }
             return false;
@@ -99,6 +101,7 @@ namespace OutlookTagBar
             string entryID = mostRecentNavigatedToMailItem.EntryID;
             if (null != entryID)
             {
+                System.Diagnostics.Debug.Write("### GLOBAL was read due to non-null entryID\n");
                 return true;
             }
             return false;
