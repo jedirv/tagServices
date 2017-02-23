@@ -24,7 +24,6 @@ namespace OutlookTagBar
         private int tagBarID = -1;
         private LocalTaggingContext localTaggingContext = null;
         private bool isExplorer = false;
-        private bool allowContextUpdates = true;
         public OutlookTagBar(OutlookTagBarAddin addin, LocalTaggingContext context, bool isExplorer)
         {
             this.isExplorer = isExplorer;
@@ -36,15 +35,11 @@ namespace OutlookTagBar
         }
         public void Status(String s)
         {
-            TextBox tb = this.Controls["textBox1"] as TextBox;
-            tb.Text = s;
+            //TextBox tb = this.Controls["textBox1"] as TextBox;
+            //tb.Text = s;
         }
         public void SetLocalTaggingContext(LocalTaggingContext context)
         {
-            if (!this.allowContextUpdates)
-            {
-                return;
-            }
             this.localTaggingContext = context;
             
             if (context.isRead())
@@ -67,13 +62,7 @@ namespace OutlookTagBar
             {
                 throw new TagServicesException("isCompose case Not Yet Implemented for OutlookTag Bar");
             }
-            if (this.isExplorer)
-            {
-                if (context.isRead())
-                {
-                    this.allowContextUpdates = false;
-                }
-            }
+            
             /*
             if (null != mailItem)
             {
@@ -156,13 +145,7 @@ namespace OutlookTagBar
             }
             return false;
         }
-        /*public void RefreshTagButtons(LocalTaggingContext localTaggingContext)
-        {
-            this.localTaggingContext = localTaggingContext;
-            System.Diagnostics.Debug.Write("calling RefreshTagButtons CHANGE context on OTB " + this.tagBarID + NL);
-            RemoveAllTagButtons();
-            ExpressTagButtonsFromBackend(localTaggingContext);
-        }*/
+      
         public void RefreshTagButtons()
         {
             System.Diagnostics.Debug.Write("calling RefreshTagButtons KEEP context on OTB " + this.tagBarID + NL);
@@ -171,7 +154,7 @@ namespace OutlookTagBar
         }
         public void ExpressTagButtonsFromBackend(LocalTaggingContext localTaggingContext)
         {
-            if (localTaggingContext.isRead())
+            if (this.localTaggingContext.isRead())
             {
                 string entryID = localTaggingContext.GetEmailBeingRead().EntryID;
                 string json = TagCommon.Backend.TagsForEmail(entryID);
