@@ -5,22 +5,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using NLog;
 
 namespace TagCommon
 {
     public class Backend
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+        
         public static String GetJsonFromBackend(String relativeUrl)
         {
             String url = "http://127.0.0.1:5000/tagapi/" + relativeUrl;
-            System.Diagnostics.Debug.Write("To    backend: " + relativeUrl);
+            logger.Debug("To    backend: " + relativeUrl);
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse webResp = (HttpWebResponse)webRequest.GetResponse();
             Stream stream = webResp.GetResponseStream();
             TextReader tr = new StreamReader(stream);
-            //System.Diagnostics.Debug.Write("web service call returned: " + tr.ReadToEnd() + NL);
             String json = tr.ReadToEnd();
-            System.Diagnostics.Debug.Write("From  backend: " + json);
+            logger.Debug("From  backend: " + json);
             webResp.Close();
             return json;
         }

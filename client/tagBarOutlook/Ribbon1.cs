@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
 using TagCommon;
+using NLog;
 
 // TODO:  Follow these steps to enable the Ribbon (XML) item:
 
@@ -34,6 +35,7 @@ namespace OutlookTagBar
     [ComVisible(true)]
     public class Ribbon1 : Office.IRibbonExtensibility
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         private Office.IRibbonUI ribbon;
 
         public Ribbon1()
@@ -149,9 +151,9 @@ namespace OutlookTagBar
                     Outlook.MailItem mailItem = item as Outlook.MailItem;
                     Outlook.Attachments attachments = mailItem.Attachments;
                     Outlook.Attachment a = attachments[1];
-                    System.Diagnostics.Debug.Write("a.displayName : " + a.DisplayName + "\n");
-                    System.Diagnostics.Debug.Write("a.pathName : " + a.PathName + "\n");
-                    System.Diagnostics.Debug.Write("a.fileName : " + a.FileName + "\n");
+                    logger.Debug("a.displayName : " + a.DisplayName + "\n");
+                    logger.Debug("a.pathName : " + a.PathName + "\n");
+                    logger.Debug("a.fileName : " + a.FileName + "\n");
                     SaveFileDialog sfd = new SaveFileDialog();
                     sfd.Title = "Save Attachment";
                     sfd.FileName = a.FileName;
@@ -160,8 +162,8 @@ namespace OutlookTagBar
 
                     sfd.ShowDialog();
                     String resourceName = sfd.FileName;
-                    
-                    System.Diagnostics.Debug.Write("resourceName : " + resourceName + "\n");
+
+                    logger.Debug("resourceName : " + resourceName + "\n");
                     a.SaveAsFile(sfd.FileName);
                     Backend.AddResource(Utils.RESOURCE_TYPE_FILE, resourceName);
                     Utils.TagResourceForMailItem(mailItem.EntryID, resourceName);

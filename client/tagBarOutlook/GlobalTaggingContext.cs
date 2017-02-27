@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Outlook = Microsoft.Office.Interop.Outlook;
+using NLog;
 
 namespace OutlookTagBar
 { 
     public class GlobalTaggingContext
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         private enum Event
         {
             Read,
@@ -24,11 +26,11 @@ namespace OutlookTagBar
         public void SetMostRecentNavigatedToMailItem(Outlook.MailItem mailItem)
         {
             mostRecentNavigatedToMailItem = mailItem;
-            System.Diagnostics.Debug.Write("### Most recent maybeID -" + mailItem.Subject + "- entryID <" + mailItem.EntryID + "> \n");
+            logger.Debug("### Most recent maybeID -" + mailItem.Subject + "- entryID <" + mailItem.EntryID + "> \n");
             if (null != mailItem.EntryID && !"".Equals(mailItem.EntryID))
             {
                 mostRecentNavigatedToMailItemWithEntryID = mailItem;
-                System.Diagnostics.Debug.Write("### Most recent yes ID -" + mailItem.Subject + "- entryID <" + mailItem.EntryID + "> \n");
+                logger.Debug("### Most recent yes ID -" + mailItem.Subject + "- entryID <" + mailItem.EntryID + "> \n");
             }
         }
         public Outlook.MailItem GetReplyEmail()
@@ -68,30 +70,30 @@ namespace OutlookTagBar
         }
         public void SetMostRecentEventReply()
         {
-            System.Diagnostics.Debug.Write("### SetMostRecentEventReply()\n");
+            logger.Debug("### SetMostRecentEventReply()\n");
             mostRecentEvent = Event.Reply;
         }
         public void SetMostRecentEventReplyAll()
         {
-            System.Diagnostics.Debug.Write("### SetMostRecentEventReplyAll()\n");
+            logger.Debug("### SetMostRecentEventReplyAll()\n");
             mostRecentEvent = Event.ReplyAll;
         }
         public void SetMostRecentEventRead()
         {
-            System.Diagnostics.Debug.Write("### SetMostRecentEventRead()\n");
+            logger.Debug("### SetMostRecentEventRead()\n");
             mostRecentEvent = Event.Read;
         }
         public bool IsReply()
         {
             if (mostRecentEvent == Event.Reply)
             {
-                System.Diagnostics.Debug.Write("### GLOBAL was reply due to most recentEvent == Event.Reply\n");
+                logger.Debug("### GLOBAL was reply due to most recentEvent == Event.Reply\n");
                 return true;
             }
             string entryID = mostRecentNavigatedToMailItem.EntryID;
             if (null == entryID || "".Equals(entryID))
             {
-                System.Diagnostics.Debug.Write("### GLOBAL was reply due to EntryID\n");
+                logger.Debug("### GLOBAL was reply due to EntryID\n");
                 return true;
             }
             return false;
@@ -101,7 +103,7 @@ namespace OutlookTagBar
             string entryID = mostRecentNavigatedToMailItem.EntryID;
             if (null != entryID)
             {
-                System.Diagnostics.Debug.Write("### GLOBAL was read due to non-null entryID\n");
+                logger.Debug("### GLOBAL was read due to non-null entryID\n");
                 return true;
             }
             return false;

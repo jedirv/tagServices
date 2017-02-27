@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using TagCommon;
+using NLog;
 
 namespace OutlookTagBar
 {
     public class LocalTaggingContext
     {
+        private Logger logger = LogManager.GetCurrentClassLogger();
         private enum State
         {
             ExplorerInit,
@@ -46,7 +48,7 @@ namespace OutlookTagBar
             {
                 state = State.Compose;// TODO = not sure if this is correct - just putting for now
             }
-            System.Diagnostics.Debug.Write("$$$ context " + contextID +  " state " + state + " \n");
+            logger.Debug("$$$ context " + contextID +  " state " + state + " \n");
         }
         
         public Outlook.MailItem GetTagNameSourceMailItem()

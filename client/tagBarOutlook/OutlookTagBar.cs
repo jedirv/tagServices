@@ -15,11 +15,13 @@ using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools;
 using TagCommon;
 using System.Diagnostics;
+using NLog;
 
 namespace OutlookTagBar
 {
     public partial class OutlookTagBar : UserControl
     {
+        private Logger logger = LogManager.GetCurrentClassLogger();
         private static int tagBarIDSource = 0;
         private int tagBarID = -1;
         private LocalTaggingContext localTaggingContext = null;
@@ -96,7 +98,7 @@ namespace OutlookTagBar
                 foreach (Button button in tagButtons)
                 {
                     int width = button.Size.Width;
-                    System.Diagnostics.Debug.Write("curOriginX " + curOriginX + " originY " + 0 + " width " + width + NL);
+                    logger.Debug("curOriginX " + curOriginX + " originY " + 0 + " width " + width + NL);
                     System.Drawing.Point newLocation = new System.Drawing.Point(curOriginX, 0);
                     button.Location = newLocation;
                     curOriginX += width;
@@ -119,7 +121,7 @@ namespace OutlookTagBar
       
         public void RefreshTagButtons()
         {
-            System.Diagnostics.Debug.Write("calling RefreshTagButtons KEEP context on OTB " + this.tagBarID + NL);
+            logger.Debug("calling RefreshTagButtons KEEP context on OTB " + this.tagBarID + NL);
             RemoveAllTagButtons();
             ExpressTagButtonsFromBackend(this.localTaggingContext);
         }
@@ -186,7 +188,6 @@ namespace OutlookTagBar
             {
                 this.Controls.Remove(buttonToRemove);
                 tagButtons.Remove(buttonToRemove);
-                System.Diagnostics.Debug.Write("button count: " + tagButtons.Count + NL);
                 PositionButtons();
             }
         }
@@ -215,7 +216,7 @@ namespace OutlookTagBar
         public Button CreateButton(String text, LocalTaggingContext localTaggingContext)
         {
             Button newButton = new Button();
-            newButton.Image = Image.FromFile("C:\\Users\\sudo\\Downloads\\Close_icon-16-square.png");
+            newButton.Image = Image.FromFile(@"..\..\Close_icon-16-square.png");
             newButton.TextImageRelation = TextImageRelation.ImageBeforeText;
             newButton.ImageAlign = ContentAlignment.MiddleLeft;
             newButton.TextAlign = ContentAlignment.MiddleRight;
@@ -319,7 +320,7 @@ namespace OutlookTagBar
                 {
                     Outlook.Attachment att = mia.GetAttachment();
                     Outlook.MailItem mi = mia.GetMailItem();
-                    System.Diagnostics.Debug.Write("would save attachment : " + att.FileName + " for " + mi.EntryID + NL);
+                    logger.Debug("would save attachment : " + att.FileName + " for " + mi.EntryID + NL);
                     String path = Path.Combine(foldername ,att.FileName);
                     att.SaveAsFile(path);
                     Backend.AddResource(Utils.RESOURCE_TYPE_FILE, path);
@@ -330,7 +331,7 @@ namespace OutlookTagBar
         private string ShowDialogAndGetPath(ToolStripMenuItem menuItem, Outlook.Attachment att)
         {
             String attachmentName = att.DisplayName;
-            System.Diagnostics.Debug.Write("saving attachment : " + attachmentName + NL);
+            logger.Debug("saving attachment : " + attachmentName + NL);
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Title = "Save Attachment";
             sfd.FileName = att.FileName;
@@ -343,7 +344,7 @@ namespace OutlookTagBar
         }
         private void SaveAndTagFile(string resourceName, Outlook.Attachment att, string entryID)
         {
-            System.Diagnostics.Debug.Write("resourceName : " + resourceName + "\n");
+            logger.Debug("resourceName : " + resourceName + "\n");
             att.SaveAsFile(resourceName);
             Backend.AddResource(Utils.RESOURCE_TYPE_FILE, resourceName);
             Utils.TagResourceForMailItem(entryID, resourceName);
@@ -447,7 +448,7 @@ namespace OutlookTagBar
             {
                 Outlook.MailItem mi = (Outlook.MailItem)senderMenuItem.Tag;
                 String path = senderMenuItem.OwnerItem.Text;
-                System.Diagnostics.Debug.Write("attaching file : " + path + NL);
+                logger.Debug("attaching file : " + path + NL);
                 mi.Attachments.Add(path, Outlook.OlAttachmentType.olByValue, System.Reflection.Missing.Value, Path.GetFileName(path));
             }
         }
@@ -458,7 +459,7 @@ namespace OutlookTagBar
             if (senderMenuItem != null)
             {
                 String path = senderMenuItem.Text;
-                System.Diagnostics.Debug.Write("opening file : " + path + NL);
+                logger.Debug("opening file : " + path + NL);
             }
         }
 

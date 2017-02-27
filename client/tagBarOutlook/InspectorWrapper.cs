@@ -7,11 +7,13 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools;
 using TagCommon;
+using NLog;
 
 namespace OutlookTagBar
 {
     public class InspectorWrapper
     {
+        private Logger logger = LogManager.GetCurrentClassLogger();
         public static Dictionary<Outlook.Inspector, InspectorWrapper> inspectorWrappersValue =
             new Dictionary<Outlook.Inspector, InspectorWrapper>();
        
@@ -34,7 +36,7 @@ namespace OutlookTagBar
             ((Outlook.InspectorEvents_Event)inspector).Close +=
                 new Outlook.InspectorEvents_CloseEventHandler(InspectorWrapper_Close);
 
-            System.Diagnostics.Debug.Write("ADDING taskPane (inspectorTagBar)\n");
+            logger.Info("ADDING taskPane (inspectorTagBar)\n");
             inspectorTagBar = new OutlookTagBar(addin, new LocalTaggingContext(addin.GetGlobalTaggingContext()), false);
             inspectorTagBar.LoadTagList(Utils.GetLatestTagList());
             taskPane = Globals.OutlookTagBarAddin.CustomTaskPanes.Add(inspectorTagBar, "Inspector Tag Bar", this.inspector);
@@ -57,14 +59,14 @@ namespace OutlookTagBar
         {
             if (taskPane != null)
             {
-                System.Diagnostics.Debug.Write("REMOVING taskPane\n");
+                logger.Info("REMOVING taskPane\n");
                 Globals.OutlookTagBarAddin.CustomTaskPanes.Remove(taskPane);
             }
 
             taskPane = null;
             if (inspector != null)
             {
-                System.Diagnostics.Debug.Write("REMOVING InspectorEvents_CloseEventHandler\n");
+                logger.Info("REMOVING InspectorEvents_CloseEventHandler\n");
                 InspectorWrappers.Remove(inspector);
                 ((Outlook.InspectorEvents_Event)inspector).Close -=
                     new Outlook.InspectorEvents_CloseEventHandler(InspectorWrapper_Close);

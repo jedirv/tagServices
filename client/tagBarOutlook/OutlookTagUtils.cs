@@ -110,7 +110,6 @@ namespace OutlookTagBar
         }
         public static void CreateNewTag(String tag, Outlook.Application application, OutlookTagBar explorerTagBar)
         {
-            System.Diagnostics.Debug.Write("New tag : " + tag + NL);
             CategoryUtils.AddCategory(tag, application);
             Backend.AddTag(tag);
             List<String> latestTags = Utils.GetLatestTagList();

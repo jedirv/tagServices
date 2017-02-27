@@ -2,6 +2,7 @@
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
 using TagCommon;
+using NLog;
 
 namespace OutlookTagBar
 {
@@ -12,6 +13,7 @@ namespace OutlookTagBar
         private OutlookTagBar explorerTagBar;
         private Microsoft.Office.Tools.CustomTaskPane explorerCustomTaskPane;
         private GlobalTaggingContext globalTaggingContext = new GlobalTaggingContext();
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         public GlobalTaggingContext GetGlobalTaggingContext()
         {
             return this.globalTaggingContext;
@@ -70,7 +72,7 @@ namespace OutlookTagBar
             currentExplorer.SelectionChange += new Outlook.ExplorerEvents_10_SelectionChangeEventHandler(CurrentExplorer_SelectionChanged);
             
             // inspector event
-            System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
+            logger.Debug("WOOHOO Started Addin...");
         }
         
         
