@@ -42,15 +42,6 @@ namespace OutlookTagBar
             taskPane.Height = 57;
             taskPane.Visible = true;
             taskPane.VisibleChanged += new EventHandler(TaskPane_VisibleChanged);
-            if (mailItem != null)
-            {
-                if (null != mailItem.EntryID)
-                {
-                    //inspectorTagBar.SetMostRecentEmailItem(mailItem);
-                    //inspectorTagBar.RemoveAllTagButtons();
-            //        inspectorTagBar.ExpressTagButtonsFromBackend(mailItem);
-                }
-            }
         }
         public OutlookTagBar getTagBar()
         {

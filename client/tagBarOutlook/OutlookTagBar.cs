@@ -62,22 +62,6 @@ namespace OutlookTagBar
             {
                 throw new TagServicesException("isCompose case Not Yet Implemented for OutlookTag Bar");
             }
-            
-            /*
-            if (null != mailItem)
-            {
-                if ("".Equals(mailItem.EntryID) || null == mailItem.EntryID)
-                {
-                    // Reply case - entryID not yet set, need to load tag based on email we are replying to
-                    Outlook.MailItem replyBasisMailItem = this.addin.GetMostRecentNavigatedToMailItemWithEntryID();
-                    if (null != replyBasisMailItem)
-                    {
-                        System.Diagnostics.Debug.Write("replyBasisMailItem has " + replyBasisMailItem.Subject + " " + replyBasisMailItem.EntryID + NL);
-                        RefreshTagButtons(replyBasisMailItem);
-                    }
-                     
-                }
-            }*/
         }
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
@@ -92,20 +76,7 @@ namespace OutlookTagBar
         {
             this.tagBasisMailItem = mi;
         }
-        private void Button1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //public void SetMostRecentEmailItem(Outlook.MailItem mailItem)
-        //{
-        //    System.Diagnostics.Debug.Write("tagBar " + tagBarID + " now has email " + mailItem.EntryID + " with subject " + mailItem.Subject + NL);
-        //    this.mostRecentMailItem = mailItem;
-        //}
-        //private Outlook.MailItem GetMostRecentEmailItem()
-        //{
-        //    return this.mostRecentMailItem;
-        //}
+       
         public void TagButton_Click(object sender, EventArgs e)
         {
             Button clickedButton = sender as Button;
@@ -257,7 +228,6 @@ namespace OutlookTagBar
             newButton.FlatStyle = FlatStyle.Flat;
             newButton.FlatAppearance.BorderSize = 1;
             newButton.FlatAppearance.BorderColor = Color.DarkGray;
-            //addMenusToButtonFromStub(newButton);
             if (localTaggingContext.isReply())
             {
                 AddMenusToButtonFromBackend(newButton, localTaggingContext.GetReplyEmail());
@@ -295,8 +265,7 @@ namespace OutlookTagBar
                 ToolStripMenuItem attachmentsItem = new ToolStripMenuItem();
                 attachmentsItem.Text = "Attachments";
                 menuStrip.Items.Add(attachmentsItem);
-
-
+                
                 // make the save all attachments item and pass info through Tag
                 ToolStripMenuItem saveAllAttachmentItem = new ToolStripMenuItem();
                 saveAllAttachmentItem.Text = "Save All";
@@ -423,7 +392,9 @@ namespace OutlookTagBar
                 pdfItem.DropDownItems.Add(item);
                 AttachOpenAndAttachMenusToDocName(item, di.Name, mailItem);
             }
-            /*if (relevantDocs.Count > 0 && mruDocs.Count > 0)
+            /*
+             * RE-ENGAGE THIS CODE IF WE ADD BACK IN MRUs
+             * if (relevantDocs.Count > 0 && mruDocs.Count > 0)
             {
                 ToolStripSeparator sep = new ToolStripSeparator();
                 pdfItem.DropDownItems.Add(sep);
@@ -447,7 +418,8 @@ namespace OutlookTagBar
             AddMenusFromJson(b,json, mailItem);
         }
         
-        private void AddMenusToButtonFromStub(Button b, Outlook.MailItem mailItem)
+        
+        private void AddMenusToButtonFromStub(Button b, Outlook.MailItem mailItem)// leave this in for testing in case needed
         {
             DocumentsMenuDataStub dataStub = new DocumentsMenuDataStub();
             String json = dataStub.GetData();

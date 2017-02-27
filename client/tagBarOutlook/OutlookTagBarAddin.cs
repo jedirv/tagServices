@@ -1,21 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools;
-using System.Windows.Forms;
 using TagCommon;
 
 namespace OutlookTagBar
 {
     public partial class OutlookTagBarAddin
     {
-        //private Dictionary<Microsoft.Office.Interop.Outlook.Inspector, Microsoft.Office.Tools.CustomTaskPane> inspectorTaskPaneDictionary = 
-        //    new Dictionary<Microsoft.Office.Interop.Outlook.Inspector, Microsoft.Office.Tools.CustomTaskPane>();
         private Outlook.Inspectors inspectors = null;
         private Outlook.Explorer currentExplorer = null;
         private OutlookTagBar explorerTagBar;
@@ -78,12 +69,8 @@ namespace OutlookTagBar
             currentExplorer = this.Application.ActiveExplorer();
             currentExplorer.SelectionChange += new Outlook.ExplorerEvents_10_SelectionChangeEventHandler(CurrentExplorer_SelectionChanged);
             
-
             // inspector event
             System.Diagnostics.Debug.Write("In THIS ADDIN STARTUP\n");
-            //Application.PickerDialog.Properties.
-            //Application.PickerDialog.Show(false);
-           
         }
         
         
@@ -105,8 +92,6 @@ namespace OutlookTagBar
                 {
                     Outlook.MailItem mailItem = Inspector.CurrentItem as Outlook.MailItem;
                     this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mailItem);
-                    //mailItem.BeforeAttachmentSave += MailItem_BeforeAttachmentSave;
-                    //mailItem.BeforeAttachmentRead += MailItem_BeforeAttachmentRead;
                     HookEventHandlersToMailItem(mailItem);
 
 
@@ -126,7 +111,6 @@ namespace OutlookTagBar
                         System.Diagnostics.Debug.Write("CREATING inspectorWrapper\n");
                         InspectorWrapper.inspectorWrappersValue.Add(Inspector, new InspectorWrapper(this, Inspector, mailItem));
                     }
-
                 }
             }
             catch(Exception e)
@@ -134,7 +118,6 @@ namespace OutlookTagBar
                 String expMessage = e.Message;
                 System.Windows.Forms.MessageBox.Show(expMessage + "\n" + e.StackTrace);
             }
-            
         }
         private void HookEventHandlersToMailItem(Outlook.MailItem mailItem)
         {
@@ -144,24 +127,10 @@ namespace OutlookTagBar
             ((Outlook.ItemEvents_10_Event)mailItem).ReplyAll -= new Outlook.ItemEvents_10_ReplyAllEventHandler(MailItem_ReplyAll);
             ((Outlook.ItemEvents_10_Event)mailItem).ReplyAll += new Outlook.ItemEvents_10_ReplyAllEventHandler(MailItem_ReplyAll);
 
-           // ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead -= new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_BeforeRead);
-           // ((Outlook.ItemEvents_10_Event)mailItem).BeforeRead += new Outlook.ItemEvents_10_BeforeReadEventHandler(MailItem_BeforeRead);
-
             ((Outlook.ItemEvents_10_Event)mailItem).Read -= new Outlook.ItemEvents_10_ReadEventHandler(MailItem_Read);
             ((Outlook.ItemEvents_10_Event)mailItem).Read += new Outlook.ItemEvents_10_ReadEventHandler(MailItem_Read);
         }
     
-        /*
-        private void MailItem_Send(ref bool cancel)
-        {
-            Outlook.MailItem mailItem = (Outlook.MailItem)
-            
-            System.Diagnostics.Debug.Write("sending email: " +mailItem.Subject + "\n");
-            string entryID = mailItem.EntryID;
-            System.Diagnostics.Debug.Write("Send entryID is " + entryID + "\n");
-            string u = mailItem.Subject;
-
-        }*/
         private void MailItem_Reply(Object response, ref bool cancel)
         {
             Outlook.MailItem mi = response as Outlook.MailItem;
@@ -172,26 +141,11 @@ namespace OutlookTagBar
         {
             this.globalTaggingContext.SetMostRecentEventReplyAll();
         }
-        //private void MailItem_BeforeRead()
-        //{
-        //    this.globalTaggingContext.SetMostRecentEventRead();
-       // }
         private void MailItem_Read()
         {
             this.globalTaggingContext.SetMostRecentEventRead();
         }
-        private void MailItem_BeforeAttachmentRead(Outlook.Attachment Attachment, ref bool Cancel)
-        {
-            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentRead\n");
-        }
-
-       
-
-        private void MailItem_BeforeAttachmentSave(Outlook.Attachment Attachment, ref bool Cancel)
-        {
-            System.Diagnostics.Debug.Write("called MailItem_BeforeAttachmentSave\n");
-        }
-
+        
         private void CurrentExplorer_SelectionChanged()
         {
             System.Diagnostics.Debug.Write("CurrentExplorer_SelectionChanged event fired\n");
@@ -207,9 +161,6 @@ namespace OutlookTagBar
                         this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mailItem);
 
                         HookEventHandlersToMailItem(mailItem);
-
-                        //explorerTagBar.SetMostRecentEmailItem(mailItem);
-                        
                         explorerTagBar.SetLocalTaggingContext(new LocalTaggingContext(this.globalTaggingContext));
                         inspectors = this.Application.Inspectors;
                         foreach (Outlook.Inspector inspector in inspectors)
@@ -220,15 +171,6 @@ namespace OutlookTagBar
                             {
                                 otb.RefreshTagButtons();
                             }
-                            /*if (inspector.CurrentItem is Outlook.MailItem)
-                            {
-                                Outlook.MailItem mi = inspector.CurrentItem as Outlook.MailItem;
-                                //otb.SetMostRecentEmailItem(mi);
-                                if (mi.EntryID.Equals(mailItem.EntryID))
-                                {
-                                    otb.RefreshTagButtons();
-                                }
-                            }*/
                         }
                         String senderName     = mailItem.Sender.Name;
                         Backend.AddPerson(Utils.NormalizeName(senderName));
