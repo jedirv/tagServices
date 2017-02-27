@@ -40,7 +40,11 @@ Normal way:
     but then need other file, so 
     click attach file
     navitage to C:\Users\sudo\Documents\davos\  and add KeysiteCandidateExperience.xlsx
-    now ready to send.
+    now ready to send
+    
+    
+    CLICK ON MESSAGE 2 NOT MESSAGE 1  OR DON'T CLICK ON MESSAGE
+    
     
 Now let's try with tags
     tag->attachments->save and open
