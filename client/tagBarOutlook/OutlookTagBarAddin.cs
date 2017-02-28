@@ -169,7 +169,7 @@ namespace OutlookTagBar
                         {
                             InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
                             OutlookTagBar otb = iWrapper.getTagBar();
-                            if (otb.GetTagBasisMailItem().EntryID.Equals(mailItem.EntryID))
+                            if (otb.GetContextID().Equals(mailItem.EntryID))
                             {
                                 otb.RefreshTagButtons();
                             }

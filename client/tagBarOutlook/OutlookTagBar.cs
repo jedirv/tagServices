@@ -46,13 +46,13 @@ namespace OutlookTagBar
             
             if (context.isRead())
             {
-                SetTagBasisMailItem(context.GetEmailBeingRead());
+                SetContextID(context.GetEmailBeingRead().EntryID);
                 RefreshTagButtons();
                 Status("read...");
             }
             else if (context.isReply())
             {
-                SetTagBasisMailItem(context.GetEmailBeingRepliedTo());
+                SetContextID(context.GetEmailBeingRepliedTo().EntryID);
                 RefreshTagButtons();
                 Status("reply...");
             }
@@ -68,15 +68,15 @@ namespace OutlookTagBar
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
         private OutlookTagBarAddin addin;
-        private Outlook.MailItem tagBasisMailItem;  
+        private string contextID;  
 
-        public Outlook.MailItem GetTagBasisMailItem()
+        public string GetContextID()
         {
-            return this.tagBasisMailItem;
+            return this.contextID;
         }
-        public void SetTagBasisMailItem(Outlook.MailItem mi)
+        public void SetContextID(string ID)
         {
-            this.tagBasisMailItem = mi;
+            this.contextID = ID;
         }
        
         public void TagButton_Click(object sender, EventArgs e)
