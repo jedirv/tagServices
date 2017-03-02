@@ -10,6 +10,7 @@ namespace OutlookTagBar
     {
         private Outlook.Inspectors inspectors = null;
         private Outlook.Explorer currentExplorer = null;
+        OutlookTagBarDecorator explorerTagBarDecorator = null;
         private OutlookTagBar explorerTagBar;
         private Microsoft.Office.Tools.CustomTaskPane explorerCustomTaskPane;
         private GlobalTaggingContext globalTaggingContext = new GlobalTaggingContext();
@@ -27,6 +28,13 @@ namespace OutlookTagBar
             get
             {
                 return this.Application;
+            }
+        }
+        public TagBarHelper ExplorerTagBarHelper
+        {
+            get
+            {
+                return explorerTagBarDecorator;
             }
         }
         public OutlookTagBar ExplorerTagBar
@@ -55,12 +63,14 @@ namespace OutlookTagBar
             {
                 Inspectors_NewInspector(inspector);
             }
- 
+
 
             /*
              * create the explorer tagBar
              */
-            explorerTagBar = new OutlookTagBar(this, new LocalTaggingContext(this.globalTaggingContext), true);
+            this.explorerTagBar = new OutlookTagBar();
+            this.explorerTagBarDecorator = new OutlookTagBarDecorator(this, explorerTagBar, new LocalTaggingContext(this.globalTaggingContext));
+            explorerTagBar.SetTagBarHelper(this.explorerTagBarDecorator);
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
             explorerCustomTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
             explorerCustomTaskPane.Height = 57;
@@ -163,15 +173,15 @@ namespace OutlookTagBar
                         this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mailItem);
 
                         HookEventHandlersToMailItem(mailItem);
-                        explorerTagBar.SetLocalTaggingContext(new LocalTaggingContext(this.globalTaggingContext));
+                        this.explorerTagBarDecorator.SetLocalTaggingContext(new LocalTaggingContext(this.globalTaggingContext));
                         inspectors = this.Application.Inspectors;
                         foreach (Outlook.Inspector inspector in inspectors)
                         {
                             InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
                             OutlookTagBar otb = iWrapper.getTagBar();
-                            if (otb.GetContextID().Equals(mailItem.EntryID))
+                            if (otb.TagBarHelper.GetContextID().Equals(mailItem.EntryID))
                             {
-                                otb.RefreshTagButtons();
+                                otb.TagBarHelper.RefreshTagButtons();
                             }
                         }
                         String senderName     = mailItem.Sender.Name;

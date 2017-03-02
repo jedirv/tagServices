@@ -11,11 +11,11 @@ namespace OutlookTagBar
     public class OutlookTagUtils
     {
         private static String NL = Environment.NewLine;
-        public static void RemoveTagFromEmail(String tag, Outlook.MailItem mi, Outlook.Application application, OutlookTagBar explorerTagBar)
+        public static void RemoveTagFromEmail(String tag, Outlook.MailItem mi, Outlook.Application application, TagBarHelper explorerTagBarHelper)
         {
             Backend.UntagEmail(mi.EntryID, tag);
             CategoryUtils.RemoveCategoryFromMailITem(tag, mi);
-            RemoveTagFromExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBar);
+            RemoveTagFromExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBarHelper);
             foreach (Outlook.Inspector inspector in application.Inspectors)
             {
                 RemoveTagFromInspectorEmailIfMatch(inspector, mi.EntryID, tag);
@@ -24,12 +24,12 @@ namespace OutlookTagBar
 
 
 
-        public static void AddTagToEmail(String tag, Outlook.MailItem mi, Outlook.Application application, OutlookTagBar explorerTagBar)
+        public static void AddTagToEmail(String tag, Outlook.MailItem mi, Outlook.Application application, TagBarHelper explorerTagBarHelper)
         {
             Backend.TagEmail(mi.EntryID, tag);
             Backend.TagPerson(Utils.NormalizeName(mi.SenderName), tag);
             CategoryUtils.AddCategoryToMailItem(mi, tag, application);
-            AddTagToExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBar);
+            AddTagToExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBarHelper);
             foreach (Outlook.Inspector inspector in application.Inspectors)
             {
                 AddTagToInspectorEmailIfMatch(inspector, mi.EntryID, tag);
@@ -58,11 +58,11 @@ namespace OutlookTagBar
                 {
                     InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
                     OutlookTagBar otb = iWrapper.getTagBar();
-                    otb.AddNewButton(tag);
+                    otb.TagBarHelper.AddNewButton(tag);
                 }
             }
         }
-        private static void RemoveTagFromExplorerEmailIfMatch(String entryID, String tag, Outlook.Application application, OutlookTagBar explorerTagBar)
+        private static void RemoveTagFromExplorerEmailIfMatch(String entryID, String tag, Outlook.Application application, TagBarHelper explorerTagBarHelper)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace OutlookTagBar
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
                         if (mailItem.EntryID.Equals(entryID))
                         {
-                            explorerTagBar.RemoveTagButton(tag);
+                            explorerTagBarHelper.RemoveTagButton(tag);
                         }
                     }
                 }
@@ -85,7 +85,7 @@ namespace OutlookTagBar
                 System.Windows.Forms.MessageBox.Show(expMessage);
             }
         }
-        private static void AddTagToExplorerEmailIfMatch(String entryID, String tag, Outlook.Application application, OutlookTagBar explorerTagBar)
+        private static void AddTagToExplorerEmailIfMatch(String entryID, String tag, Outlook.Application application, TagBarHelper exlorerTagBarHelper)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace OutlookTagBar
                         Outlook.MailItem mailItem = selObject as Outlook.MailItem;
                         if (mailItem.EntryID.Equals(entryID))
                         {
-                            explorerTagBar.AddNewButton(tag);
+                            exlorerTagBarHelper.AddNewButton(tag);
                         }
                     }
                 }

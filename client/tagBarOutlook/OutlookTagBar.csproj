@@ -162,12 +162,15 @@
     <Compile Include="CategoryUtils.cs" />
     <Compile Include="GlobalTaggingContext.cs" />
     <Compile Include="InspectorWrapper.cs" />
+    <Compile Include="MailItemAttachment.cs" />
+    <Compile Include="MailItemAttachments.cs" />
     <Compile Include="OutlookTagBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="OutlookTagBar.Designer.cs">
       <DependentUpon>OutlookTagBar.cs</DependentUpon>
     </Compile>
+    <Compile Include="OutlookTagBarDecorator.cs" />
     <Compile Include="OutlookTagUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
