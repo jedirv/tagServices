@@ -19,10 +19,10 @@ namespace OutlookTagBar
         private string contextID;
         private String NL = Environment.NewLine;
         private Logger logger = LogManager.GetCurrentClassLogger();
-        private OutlookTagBar tagBar;
+        private TagBar tagBar;
         private LocalTaggingContext localTaggingContext;
         private OutlookTagBarAddin addin;
-        public OutlookTagBarDecorator(OutlookTagBarAddin addin, OutlookTagBar tagBar, LocalTaggingContext localTaggingContext)
+        public OutlookTagBarDecorator(OutlookTagBarAddin addin, TagBar tagBar, LocalTaggingContext localTaggingContext)
         {
             this.addin = addin;
             this.tagBar = tagBar;

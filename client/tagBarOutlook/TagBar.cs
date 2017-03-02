@@ -1,25 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Forms;
-using System.IO;
-
-
-using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools;
 using TagCommon;
-using System.Diagnostics;
 using NLog;
 
 namespace OutlookTagBar
 {
-    public partial class OutlookTagBar : UserControl
+    public partial class TagBar : UserControl
     {
         private String NL = Environment.NewLine;
         private List<Button> tagButtons = new List<Button>();
@@ -27,7 +14,7 @@ namespace OutlookTagBar
         private static int tagBarIDSource = 0;
         private int tagBarID = -1;
         private TagBarHelper tagBarHelper;
-        public OutlookTagBar()
+        public TagBar()
         {
             InitializeComponent();
             tagBarID = tagBarIDSource;

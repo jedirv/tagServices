@@ -28,7 +28,7 @@ namespace OutlookTagBar
         private Outlook.Inspector inspector;
         private CustomTaskPane taskPane;
         private Outlook.MailItem mailItem;
-        private OutlookTagBar inspectorTagBar;
+        private TagBar inspectorTagBar;
         private OutlookTagBarDecorator inspectorTagBarDecorator;
         public InspectorWrapper(OutlookTagBarAddin addin, Outlook.Inspector Inspector, Outlook.MailItem mailItem)
         {
@@ -41,7 +41,7 @@ namespace OutlookTagBar
 
             
 
-            inspectorTagBar = new OutlookTagBar();
+            inspectorTagBar = new TagBar();
             inspectorTagBarDecorator = new OutlookTagBarDecorator(addin, inspectorTagBar, new LocalTaggingContext(addin.GetGlobalTaggingContext()));
             inspectorTagBar.SetTagBarHelper(this.inspectorTagBarDecorator);
             inspectorTagBar.LoadTagList(Utils.GetLatestTagList());
@@ -51,7 +51,7 @@ namespace OutlookTagBar
             taskPane.Visible = true;
             taskPane.VisibleChanged += new EventHandler(TaskPane_VisibleChanged);
         }
-        public OutlookTagBar getTagBar()
+        public TagBar getTagBar()
         {
             return this.inspectorTagBar;
         }

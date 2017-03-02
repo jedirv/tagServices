@@ -11,7 +11,7 @@ namespace OutlookTagBar
         private Outlook.Inspectors inspectors = null;
         private Outlook.Explorer currentExplorer = null;
         OutlookTagBarDecorator explorerTagBarDecorator = null;
-        private OutlookTagBar explorerTagBar;
+        private TagBar explorerTagBar;
         private Microsoft.Office.Tools.CustomTaskPane explorerCustomTaskPane;
         private GlobalTaggingContext globalTaggingContext = new GlobalTaggingContext();
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -37,7 +37,7 @@ namespace OutlookTagBar
                 return explorerTagBarDecorator;
             }
         }
-        public OutlookTagBar ExplorerTagBar
+        public TagBar ExplorerTagBar
         {
             get
             {
@@ -68,7 +68,7 @@ namespace OutlookTagBar
             /*
              * create the explorer tagBar
              */
-            this.explorerTagBar = new OutlookTagBar();
+            this.explorerTagBar = new TagBar();
             this.explorerTagBarDecorator = new OutlookTagBarDecorator(this, explorerTagBar, new LocalTaggingContext(this.globalTaggingContext));
             explorerTagBar.SetTagBarHelper(this.explorerTagBarDecorator);
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
@@ -178,7 +178,7 @@ namespace OutlookTagBar
                         foreach (Outlook.Inspector inspector in inspectors)
                         {
                             InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
-                            OutlookTagBar otb = iWrapper.getTagBar();
+                            TagBar otb = iWrapper.getTagBar();
                             if (otb.TagBarHelper.GetContextID().Equals(mailItem.EntryID))
                             {
                                 otb.TagBarHelper.RefreshTagButtons();

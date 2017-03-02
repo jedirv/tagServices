@@ -1,6 +1,6 @@
 ﻿namespace OutlookTagBar
 {
-    partial class OutlookTagBar
+    partial class TagBar
     {
         /// <summary> 
         /// Required designer variable.

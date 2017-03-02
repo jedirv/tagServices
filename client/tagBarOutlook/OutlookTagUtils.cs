@@ -44,7 +44,7 @@ namespace OutlookTagBar
                 if (entryID.Equals(mailItem.EntryID))
                 {
                     InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
-                    OutlookTagBar otb = iWrapper.getTagBar();
+                    TagBar otb = iWrapper.getTagBar();
                     otb.RemoveTagButton(tag);
                 }
             }
@@ -57,7 +57,7 @@ namespace OutlookTagBar
                 if (entryID.Equals(mailItem.EntryID))
                 {
                     InspectorWrapper iWrapper = InspectorWrapper.inspectorWrappersValue[inspector];
-                    OutlookTagBar otb = iWrapper.getTagBar();
+                    TagBar otb = iWrapper.getTagBar();
                     otb.TagBarHelper.AddNewButton(tag);
                 }
             }
@@ -108,7 +108,7 @@ namespace OutlookTagBar
                 System.Windows.Forms.MessageBox.Show(expMessage);
             }
         }
-        public static void CreateNewTag(String tag, Outlook.Application application, OutlookTagBar explorerTagBar)
+        public static void CreateNewTag(String tag, Outlook.Application application, TagBar explorerTagBar)
         {
             CategoryUtils.AddCategory(tag, application);
             Backend.AddTag(tag);
