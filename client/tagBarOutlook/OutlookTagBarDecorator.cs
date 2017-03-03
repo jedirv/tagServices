@@ -68,7 +68,7 @@ namespace OutlookTagBar
                 throw new TagServicesException("isCompose case Not Yet Implemented for OutlookTag Bar");
             }
         }
-        public void ExpressTagButtonsFromBackend(OutlookTagBarContext localTaggingContext)
+        private void ExpressTagButtonsFromBackend(OutlookTagBarContext localTaggingContext)
         {
             if (localTaggingContext.isRead())
             {
@@ -107,7 +107,7 @@ namespace OutlookTagBar
         {
             AddNewButton(name, this.localTaggingContext);
         }
-        public void AddNewButton(String name, OutlookTagBarContext localTaggingContext)
+        private void AddNewButton(String name, OutlookTagBarContext localTaggingContext)
         {
             if (!this.tagBar.IsButtonAlreadyPresent(name))
             {
@@ -116,7 +116,7 @@ namespace OutlookTagBar
                 
             }
         }
-        public Button CreateButton(String text, OutlookTagBarContext localTaggingContext)
+        private Button CreateButton(String text, OutlookTagBarContext localTaggingContext)
         {
             Button newButton = new TagButton(text);
             newButton.Click += new EventHandler(TagButton_Click);
@@ -204,7 +204,7 @@ namespace OutlookTagBar
             }
 
         }
-        public void SaveAttachmentMenuItem_Click(object sender, EventArgs e)
+        private void SaveAttachmentMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
             if (senderMenuItem != null)
@@ -217,7 +217,7 @@ namespace OutlookTagBar
             }
         }
 
-        public void SaveAndOpenAttachmentMenuItem_Click(object sender, EventArgs e)
+        private void SaveAndOpenAttachmentMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem senderMenuItem = sender as ToolStripMenuItem;
             if (senderMenuItem != null)

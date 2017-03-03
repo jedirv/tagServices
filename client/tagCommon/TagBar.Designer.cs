@@ -1,4 +1,4 @@
-﻿namespace OutlookTagBar
+﻿namespace TagCommon
 {
     partial class TagBar
     {

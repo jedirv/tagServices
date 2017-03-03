@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 using Word = Microsoft.Office.Interop.Word;
-using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools.Word;
-using System.Windows.Forms;
 using TagCommon;
 
 using Microsoft.Office.Tools;
@@ -34,12 +28,19 @@ namespace WordButtonTest
         private WordTagBar myPane;
         private TagCommon.TagNameSource tagNameSource = new TagCommon.TagNameSource();
         private Microsoft.Office.Tools.CustomTaskPane myCustomTaskPane;
+        private WordTagBarDecorator primaryTagBarDecorator;
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            //https://msdn.microsoft.com/en-us/library/microsoft.office.interop.word(v=office.15).aspx
+
             //this.Application.DocumentOpen   += new Word.ApplicationEvents4_DocumentOpenEventHandler(DocumentOpenHandler);
             // use the windowActivate handler because it fires at a time when we can catch it during startup
             this.Application.WindowActivate += new Word.ApplicationEvents4_WindowActivateEventHandler(WindowActivateHandler);
             this.Application.DocumentBeforeClose   += new Word.ApplicationEvents4_DocumentBeforeCloseEventHandler(DocumentCloseHandler);
+            this.Application.DocumentOpen += new Word.ApplicationEvents4_DocumentOpenEventHandler(DocumentOpenHandler);
+            //this.Application.DocumentBeforeSave += new Word.ApplicationEvents4_DocumentBeforeSaveEventHandler(DocumentBeforeSaveHandler);
+            //Word.ApplicationEvents4_event.NewDocument = += new Word.ApplicationEvents4_NewDocumentEventHandler(DocumentBeforeSaveHandler);
+            //this.Application.NewDocument += new Word.ApplicationEvents4_NewDocumentEventHandler(DocumentBeforeSaveHandler);
         }
         void WindowActivateHandler(Word.Document doc, Word.Window window)
         {
@@ -51,7 +52,9 @@ namespace WordButtonTest
                 RemoveTaskPanesIfTheirWindowHasThisCaption(caption);
 
                 List<String> tags = tagNameSource.GetNextTags(caption);
-                WordTagBar tagBar = new WordTagBar();
+                TagBar tagBar = new TagBar();
+                this.primaryTagBarDecorator = new WordTagBarDecorator();
+                tagBar.SetTagBarHelper(this.primaryTagBarDecorator);
                 DocumentWindowWrapper dww = new DocumentWindowWrapper();
                 CustomTaskPane ctp = dww.Wrap(this, doc, tags, tagBar);
                
@@ -142,51 +145,8 @@ namespace WordButtonTest
             */
         }
     }
-    public class DocumentWindowWrapper
-    {
-        private Word.Document document;
-        private CustomTaskPane taskPane;
-        private List<String> tags;
-        public DocumentWindowWrapper()
-        {
-            
-        }
-        public CustomTaskPane Wrap(WordTagBarAddin addin, Word.Document Doc, List<String> tags, WordTagBar tagBar)
-        {
-            this.document = Doc;
-            this.tags = tags;
-            Document vstoDoc = Globals.Factory.GetVstoObject(addin.Application.ActiveDocument);
-            //System.Diagnostics.Debug.Write("ADDING taskPane (inspectorTagBar)\n");
-            taskPane = Globals.WordTagBarAddin.CustomTaskPanes.Add(tagBar, "Tag Bar", this.document.ActiveWindow);
-            taskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
-            taskPane.Height = 57;
-            taskPane.Visible = true;
-            
-            WordTagBarAddin.ExpressTagButtons(tagBar, tags);
-            System.Windows.Forms.ComboBox cb = tagBar.Controls["comboBox1"] as System.Windows.Forms.ComboBox;
+   
 
-            /*
-            cb.Items.Add("teaching\\cs500");
-            cb.Items.Add("teaching\\cs501");
-            cb.Items.Add("teaching\\cs502");
-            cb.Items.Add("teaching\\cs503");
-            cb.Items.Add("teaching\\cs504");
-            cb.Items.Add("teaching\\cs505");
-            cb.Items.Add("teaching\\cs506");
-            cb.Items.Add("teaching\\cs507");
-            // cb.Items.Add("word\\tags\\control render testing\\implement remove tag");
-            cb.SelectedIndex = 1;
-            */
-            return taskPane;
-        }
-
-        public CustomTaskPane CustomTaskPane
-        {
-            get
-            {
-                return taskPane;
-            }
-        }
-    }
+       
     
 }

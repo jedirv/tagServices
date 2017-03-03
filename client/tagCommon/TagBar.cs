@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using TagCommon;
 using NLog;
 
-namespace OutlookTagBar
+namespace TagCommon
 {
     public partial class TagBar : UserControl
     {
