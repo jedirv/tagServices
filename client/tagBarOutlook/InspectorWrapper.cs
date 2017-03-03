@@ -42,7 +42,7 @@ namespace OutlookTagBar
             
 
             inspectorTagBar = new TagBar();
-            inspectorTagBarDecorator = new OutlookTagBarDecorator(addin, inspectorTagBar, new LocalTaggingContext(addin.GetGlobalTaggingContext()));
+            inspectorTagBarDecorator = new OutlookTagBarDecorator(addin, inspectorTagBar, new OutlookTagBarContext(addin.GetGlobalTaggingContext()));
             inspectorTagBar.SetTagBarHelper(this.inspectorTagBarDecorator);
             inspectorTagBar.LoadTagList(Utils.GetLatestTagList());
             taskPane = Globals.OutlookTagBarAddin.CustomTaskPanes.Add(inspectorTagBar, "Inspector Tag Bar", this.inspector);

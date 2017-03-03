@@ -20,9 +20,9 @@ namespace OutlookTagBar
         private String NL = Environment.NewLine;
         private Logger logger = LogManager.GetCurrentClassLogger();
         private TagBar tagBar;
-        private LocalTaggingContext localTaggingContext;
+        private OutlookTagBarContext localTaggingContext;
         private OutlookTagBarAddin addin;
-        public OutlookTagBarDecorator(OutlookTagBarAddin addin, TagBar tagBar, LocalTaggingContext localTaggingContext)
+        public OutlookTagBarDecorator(OutlookTagBarAddin addin, TagBar tagBar, OutlookTagBarContext localTaggingContext)
         {
             this.addin = addin;
             this.tagBar = tagBar;
@@ -43,7 +43,7 @@ namespace OutlookTagBar
             //TextBox tb = this.Controls["textBox1"] as TextBox;
             //tb.Text = s;
         }
-        public void SetLocalTaggingContext(LocalTaggingContext context)
+        public void SetLocalTaggingContext(OutlookTagBarContext context)
         {
             this.localTaggingContext = context;
 
@@ -68,7 +68,7 @@ namespace OutlookTagBar
                 throw new TagServicesException("isCompose case Not Yet Implemented for OutlookTag Bar");
             }
         }
-        public void ExpressTagButtonsFromBackend(LocalTaggingContext localTaggingContext)
+        public void ExpressTagButtonsFromBackend(OutlookTagBarContext localTaggingContext)
         {
             if (localTaggingContext.isRead())
             {
@@ -107,7 +107,7 @@ namespace OutlookTagBar
         {
             AddNewButton(name, this.localTaggingContext);
         }
-        public void AddNewButton(String name, LocalTaggingContext localTaggingContext)
+        public void AddNewButton(String name, OutlookTagBarContext localTaggingContext)
         {
             if (!this.tagBar.IsButtonAlreadyPresent(name))
             {
@@ -116,7 +116,7 @@ namespace OutlookTagBar
                 
             }
         }
-        public Button CreateButton(String text, LocalTaggingContext localTaggingContext)
+        public Button CreateButton(String text, OutlookTagBarContext localTaggingContext)
         {
             Button newButton = new TagButton(text);
             newButton.Click += new EventHandler(TagButton_Click);

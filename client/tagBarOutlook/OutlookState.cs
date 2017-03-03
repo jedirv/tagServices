@@ -8,7 +8,7 @@ using NLog;
 
 namespace OutlookTagBar
 { 
-    public class GlobalTaggingContext
+    public class OutlookState
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private enum Event

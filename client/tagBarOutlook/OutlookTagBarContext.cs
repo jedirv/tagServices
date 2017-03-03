@@ -9,7 +9,7 @@ using NLog;
 
 namespace OutlookTagBar
 {
-    public class LocalTaggingContext
+    public class OutlookTagBarContext
     {
         private Logger logger = LogManager.GetCurrentClassLogger();
         private enum State
@@ -26,7 +26,7 @@ namespace OutlookTagBar
         private Outlook.MailItem emailBeingRepliedTo = null;
         private Outlook.MailItem replyEmail = null;
         private Outlook.MailItem emailBeingRead = null;
-        public LocalTaggingContext(GlobalTaggingContext globalTaggingContext)
+        public OutlookTagBarContext(OutlookState globalTaggingContext)
         {
             contextID = contextIDNum++;
             if (globalTaggingContext.IsExplorerInit())

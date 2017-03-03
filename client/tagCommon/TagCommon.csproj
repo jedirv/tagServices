@@ -58,6 +58,12 @@
     <Compile Include="Persons.cs" />
     <Compile Include="PersonsMenuDataStub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TagBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TagBar.Designer.cs">
+      <DependentUpon>TagBar.cs</DependentUpon>
+    </Compile>
     <Compile Include="TagBarHelper.cs" />
     <Compile Include="TagButton.cs">
       <SubType>Component</SubType>
@@ -77,6 +83,11 @@
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TagBar.resx">
+      <DependentUpon>TagBar.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

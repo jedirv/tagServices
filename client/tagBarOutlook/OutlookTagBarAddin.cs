@@ -13,9 +13,9 @@ namespace OutlookTagBar
         OutlookTagBarDecorator explorerTagBarDecorator = null;
         private TagBar explorerTagBar;
         private Microsoft.Office.Tools.CustomTaskPane explorerCustomTaskPane;
-        private GlobalTaggingContext globalTaggingContext = new GlobalTaggingContext();
+        private OutlookState globalTaggingContext = new OutlookState();
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        public GlobalTaggingContext GetGlobalTaggingContext()
+        public OutlookState GetGlobalTaggingContext()
         {
             return this.globalTaggingContext;
         }
@@ -69,7 +69,7 @@ namespace OutlookTagBar
              * create the explorer tagBar
              */
             this.explorerTagBar = new TagBar();
-            this.explorerTagBarDecorator = new OutlookTagBarDecorator(this, explorerTagBar, new LocalTaggingContext(this.globalTaggingContext));
+            this.explorerTagBarDecorator = new OutlookTagBarDecorator(this, explorerTagBar, new OutlookTagBarContext(this.globalTaggingContext));
             explorerTagBar.SetTagBarHelper(this.explorerTagBarDecorator);
             explorerCustomTaskPane = this.CustomTaskPanes.Add(explorerTagBar, "Explorer Tag Bar");
             explorerCustomTaskPane.DockPosition = Office.MsoCTPDockPosition.msoCTPDockPositionTop;
@@ -173,7 +173,7 @@ namespace OutlookTagBar
                         this.globalTaggingContext.SetMostRecentNavigatedToMailItem(mailItem);
 
                         HookEventHandlersToMailItem(mailItem);
-                        this.explorerTagBarDecorator.SetLocalTaggingContext(new LocalTaggingContext(this.globalTaggingContext));
+                        this.explorerTagBarDecorator.SetLocalTaggingContext(new OutlookTagBarContext(this.globalTaggingContext));
                         inspectors = this.Application.Inspectors;
                         foreach (Outlook.Inspector inspector in inspectors)
                         {
