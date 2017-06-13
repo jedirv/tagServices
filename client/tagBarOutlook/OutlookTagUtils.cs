@@ -15,6 +15,9 @@ namespace OutlookTagBar
         {
             Backend.UntagEmail(mi.EntryID, tag);
             CategoryUtils.RemoveCategoryFromMailITem(tag, mi);
+            /* The email might be opened in more than one place - the inspector and any number of explorers, so find all the ones
+             * are showing the mailItem and remove the tag there.
+             */
             RemoveTagFromExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBarHelper);
             foreach (Outlook.Inspector inspector in application.Inspectors)
             {
@@ -29,6 +32,9 @@ namespace OutlookTagBar
             Backend.TagEmail(mi.EntryID, tag);
             Backend.TagPerson(Utils.NormalizeName(mi.SenderName), tag);
             CategoryUtils.AddCategoryToMailItem(mi, tag, application);
+            /* The email might be opened in more than one place - the inspector and any number of explorers, so find all the ones
+            * are showing the mailItem and add the tag there.
+            */
             AddTagToExplorerEmailIfMatch(mi.EntryID, tag, application, explorerTagBarHelper);
             foreach (Outlook.Inspector inspector in application.Inspectors)
             {
@@ -113,6 +119,10 @@ namespace OutlookTagBar
             CategoryUtils.AddCategory(tag, application);
             Backend.AddTag(tag);
             List<String> latestTags = Utils.GetLatestTagList();
+            /*
+             * There might be more than one TagBar in play - one in the explorer and any number of inspectors.
+             * Find them all and update their tagList
+             */
             explorerTagBar.LoadTagList(latestTags);
             Dictionary<Outlook.Inspector, InspectorWrapper>.KeyCollection keys = InspectorWrapper.inspectorWrappersValue.Keys;
             foreach (Outlook.Inspector inspector in keys)

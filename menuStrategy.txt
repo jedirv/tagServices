@@ -1,0 +1,120 @@
+
+NOTE - * refers to MRU - most recently used
+
+
+COMPOSE EMAIL
+(tag)
+	persons
+		(person)
+			To:
+			CC:
+			BCC:
+			documentsRecievedFrom
+                (doc)
+                    open
+			documentsSentTo
+                (doc)
+                    open
+            emailRecievedFrom
+                (email)
+                    open
+			emailSentTo
+                (email)
+                    open
+		(*person)
+			ditto
+		
+	urls
+		(url)
+			open
+			include
+		(*url)
+			ditto
+	documents
+		(doc)
+			open
+			attach
+		(*doc)
+			open
+			attach
+
+Component to build this menu - ComposeEmailMenuBuilder
+                                    getPersonsMenuTree()
+                                    getUrlMenuTree()
+                                    getDocumentMenuTree()
+
+READ EMAIL
+(tag)
+	persons
+		(person)
+			forward
+			documentsRecievedFrom
+                (doc)
+                    open
+			documentsSentTo
+                (doc)
+                    open
+			emailRecievedFrom
+                (email)
+                    open
+			emailSentTo
+                (email)
+                    open
+        (*person)
+            ditto
+            
+	attachments
+		save all
+		(attachment)
+			open
+			save
+                mru folders
+                browse
+
+Component to build this menu - ReadEmailMenuBuilder
+                                    getPersonsMenuTree()
+                                    getAttachmentsMenuTree()
+
+WORD
+(tag)
+	person
+		(person)
+			documentsRecievedFrom
+                (doc)
+                    open
+			documentsSentTo
+                (doc)
+                    open
+			emailReceivedFrom
+                (email)
+                    open
+                    reply with current doc (force save?) * added for Keysight demo - (initiate reply automation, initiate attach automation)
+			emailSentTo
+                (email)
+                    open
+			send current document
+            
+	urls
+		(url)
+			open
+			include
+	currentDocument
+		saveAs
+		printToPDF
+
+	documents
+		(doc)
+			open in separate window
+			open in current window
+		(*doc)
+			open in separate window
+			open in current window
+
+Component to build this menu - WordEmailMenuBuilder
+                                    getPersonsMenuTree()
+                                       getUrlsMenuTree()
+                                    getDocumentMenuTree()
+    
+
+			
+

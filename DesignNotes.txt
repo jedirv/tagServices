@@ -1,0 +1,43 @@
+
+
+tagServices
+    client
+        tagBarOutlook       - Outlook specific
+        tagBarWord          - Word specific
+        tagCommon           - code/components common to both outlook and word
+        tagServices         - holds the .sln and the NLog dlls
+    server
+        flaskWSBackend      - the flask web service backend
+        
+    
+tagCommon contains
+        - generic TagBar that is used in both Outlook and Word
+        - Backend.cs - encapsulates all the calls to flask
+        - Documents, Persons, Tagname - classes that wrap the basic tagging object space that are relevant to both Outlook and Word
+        - TagBarHelper interface - word and outlook project implement this to populate, control the TagBar
+        - TagNameSource - stub class to provide dummy tag names for testing
+        
+tagBarOutlook
+        InspectorWrapper        - wraps each inspector, has it's own TagBar and it's own OutlookTagBarDecorator instance, provides static hash to keep track of which wrapper is assocuiated with which inspector so that given an inspector, we can find its TagBar
+        OutlookState            - tracks state of outlook as per user interactions
+        OutlookTagBarAddin      - the addin
+        OutlookTagBarContext
+        OutlookTagBarDecorator
+
+
+
+
+
+tagBarWord
+        DocumentWindowWrapper
+        WordTagBar              - obsolete - has been replaced by TagBar
+        WordTagBarAddin         - the addin
+        WordTagBarDecorator
+        
+        
+        
+In progress
+    implement WordTagBarDecorator
+    functionality from WordTagBar needs moving to WordTagBarDecorator
+    namespace WordButtonTest should be changed to WordTagBar
+    
